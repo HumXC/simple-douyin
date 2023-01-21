@@ -25,4 +25,6 @@ func InitDouyin(engine *gin.Engine) *DouYin { // 初始化 douyin
 func initDouyinRoute(douyin *gin.RouterGroup) {
 	routerHello := douyin.Group("hello")
 	routerHello.GET("/", hander.Hello)
+
+	douyin.GET("feed", hander.Feed)
 }

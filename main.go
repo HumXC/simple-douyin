@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	const ServeAddr = "localhost:11451"
+	const ServeAddr = ":11451"
 	// 初始化数据库
 	// ...
 
