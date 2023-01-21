@@ -13,7 +13,7 @@ func (d *DouYin) Run(addr string) error {
 	return d.engine.Run(addr)
 }
 
-func InitServer(engine *gin.Engine) *DouYin {
+func InitDouyin(engine *gin.Engine) *DouYin { // 初始化 douyin
 	douyin := engine.Group("douyin")
 	initDouyinRoute(douyin)
 	return &DouYin{

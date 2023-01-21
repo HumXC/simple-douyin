@@ -12,7 +12,7 @@ func main() {
 
 	// 初始化 gin
 	engine := gin.Default()
-	douyin := server.InitServer(engine)
+	douyin := server.InitDouyin(engine)
 
 	panic(douyin.Run(ServeAddr))
 }
