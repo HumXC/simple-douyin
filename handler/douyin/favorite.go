@@ -1,8 +1,12 @@
 package douyin
 
 import (
+	"github.com/HumXC/simple-douyin/model"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
+	"time"
 )
 
 type ActionRequest struct {
@@ -41,14 +45,43 @@ type ListUser struct {
 	IsFollow      bool   `json:"is_follow,omitempty"`
 }
 
-func ToThumbsUp(c *gin.Context) {
-	videoId := c.PostForm("video_id")
-	actionType := c.PostForm("action_type")
-	if videoId == "" || actionType == "" {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"code":    -1,
-			"message": "InvalidParams",
+func Action(c *gin.Context) {
+	videoId, _ := strconv.Atoi(c.PostForm("video_id"))
+	actionType, _ := strconv.Atoi(c.PostForm("action_type"))
+	//解析toke
+	claims, _ := jwt.ParseWithClaims()
+	userId := claims.Valid, userId
+	//
+	var action model.ThumbsUp
+	if videoId == 0 || actionType == 0 {
+		c.JSON(http.StatusBadRequest, Response{
+			StatusCode: -1,
+			StatusMsg:  "InvalidParams",
 		})
 		return
 	}
+	//取消点赞操作
+	if actionType == 2 {
+		err := action.ActionTypeChange(c, videoId, userId)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, Response{
+				StatusCode: 403,
+				StatusMsg:  err.Error(),
+			})
+			return
+		}
+	}
+	err := action.ActionTypeAdd(c, videoId, userId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, Response{
+			StatusCode: 403,
+			StatusMsg:  err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, Response{
+		StatusCode: 200,
+		StatusMsg:  "ok",
+	})
+	return
 }

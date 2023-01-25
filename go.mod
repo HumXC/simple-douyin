@@ -3,6 +3,7 @@ module github.com/HumXC/simple-douyin
 go 1.19
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-redis/redis/v8 v8.11.5
 	gorm.io/gorm v1.24.3
 )
