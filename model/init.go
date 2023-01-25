@@ -17,6 +17,6 @@ func InitDB(fileName string) error {
 	if err != nil {
 		return err
 	}
-	// db.AutoMigrate()
+	db.AutoMigrate(&Video{})
 	return nil
 }
