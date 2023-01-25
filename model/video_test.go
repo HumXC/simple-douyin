@@ -1,13 +1,18 @@
 package model_test
 
 import (
+	"path"
 	"testing"
 
 	"github.com/HumXC/simple-douyin/model"
 )
 
-func TestPutAndGetByID(t *testing.T) {
-	videoMan := model.VideoMan
+func TestDouyinPutAndGetByID(t *testing.T) {
+	douyinDB, err := model.NewDouyinDB(path.Join(TEST_DIR, "douyin.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	videoMan := douyinDB.Video
 	newVideo := model.Video{
 		UserID: "111222333",
 		Hash:   "testvideo",
