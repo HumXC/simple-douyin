@@ -14,7 +14,7 @@ func TestDouyinPutAndGetByID(t *testing.T) {
 	}
 	videoMan := douyinDB.Video
 	newVideo := model.Video{
-		UserID: "111222333",
+		UserID: 1,
 		Hash:   "testvideo",
 		Title:  "这是一个测试视频",
 	}
