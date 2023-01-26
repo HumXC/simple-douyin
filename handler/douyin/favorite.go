@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
-	"time"
 )
 
 type ActionRequest struct {
@@ -45,14 +44,15 @@ type ListUser struct {
 	IsFollow      bool   `json:"is_follow,omitempty"`
 }
 
+// action 赞操作
 func Action(c *gin.Context) {
 	videoId, _ := strconv.Atoi(c.PostForm("video_id"))
 	actionType, _ := strconv.Atoi(c.PostForm("action_type"))
 	//解析toke
 	claims, _ := jwt.ParseWithClaims()
-	userId := claims.Valid, userId
+	userId := claims.Valid
 	//
-	var action model.ThumbsUp
+	var action model.ThumbsUpMan
 	if videoId == 0 || actionType == 0 {
 		c.JSON(http.StatusBadRequest, Response{
 			StatusCode: -1,
@@ -71,6 +71,7 @@ func Action(c *gin.Context) {
 			return
 		}
 	}
+	//点赞
 	err := action.ActionTypeAdd(c, videoId, userId)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, Response{
@@ -84,4 +85,9 @@ func Action(c *gin.Context) {
 		StatusMsg:  "ok",
 	})
 	return
+}
+
+// list 喜欢列表
+func List(c *gin.Context) {
+
 }
