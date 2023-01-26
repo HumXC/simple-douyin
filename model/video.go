@@ -5,9 +5,11 @@ import "gorm.io/gorm"
 // 保存用户上传的视频
 type Video struct {
 	gorm.Model
-	Hash   string
-	Title  string
-	UserID string // 上传用户
+	Hash          string
+	Title         string // 视频标题
+	UserID        int64  // 视频上传用户ID
+	CommentCount  int64  // 视频评论数
+	FavoriteCount int64  // 视频点赞数
 }
 
 // 这个结构体的存在是为了隔离对不同表的操作
