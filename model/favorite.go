@@ -6,7 +6,6 @@ import (
 	"github.com/go-redis/redis/v8"
 	"gorm.io/gorm"
 	"strconv"
-	"time"
 )
 
 type ThumbsUp struct {
@@ -57,7 +56,7 @@ func (t *thumbsUpMan) ActionTypeChange(c *gin.Context, videoId int, userId int) 
 
 // 添加一条点赞信息
 func (*ThumbsUp) ActionTypeAdd(c *gin.Context, videoId int, userId int) error {
-	actionType, err := RDB.Get(c, strconv.Itoa(videoId)+strconv.Itoa(userId)).Result()
+	_, err := RDB.Get(c, strconv.Itoa(videoId)+strconv.Itoa(userId)).Result()
 	//redis里没有数据
 	if err == redis.Nil {
 		return err
