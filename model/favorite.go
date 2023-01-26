@@ -16,35 +16,26 @@ type ThumbsUp struct {
 	ActionType int   `gorm:"action_type;type:integer()" json:"action_type"`
 }
 
-func (*ThumbsUp) ActionTypeChange(c *gin.Context, videoId int, userId int) error {
+type thumbsUpMan struct {
+	db *gorm.DB
+}
+
+func (t *thumbsUpMan) ActionTypeChange(c *gin.Context, videoId int, userId int) error {
+	//从redis里查
 	actionType, err := RDB.Get(c, strconv.Itoa(videoId)+strconv.Itoa(userId)).Result()
-	sql, err := DB.Find(videoId)
+	//从sqlite里查是否存在数据
+	data := ThumbsUp{}
+	err = t.db.Where("video_id = ? and user_id = ?", videoId, userId).Find(&data).Error
 	actionTypeInt, _ := strconv.Atoi(actionType)
-	//
-	//redis里没找到
-	if err == redis.Nil || err == sql.Nil {
-		//sql查找是否点赞
-		sql, err := DB.Find(videoId).Err
-		if err != nil {
-			return err
-		}
-		if sql.find == 0 || sql == 2 {
-			//sql里没找到
-			return errors.New("date err")
-		}
-		t := ThumbsUp{
-			UserId:     int64(userId),
-			VideoId:    int64(videoId),
-			ActionType: actionTypeInt,
-		}
-		//数据追加到redis,同时将已经保存到sql里更新现有的数据
-		RDB.Set(c, strconv.Itoa(videoId)+strconv.Itoa(userId), actionType, time.Hour*24)
-		DB.Model(&ThumbsUp{}).Save(&s)
+	//数据不存在
+	if err == redis.Nil || err == gorm.ErrRecordNotFound {
+		return err
+		////数据追加到redis,同时将已经保存到sql里更新现有的数据
+		//RDB.Set(c, strconv.Itoa(videoId)+strconv.Itoa(userId), actionType, time.Hour*24)
+		//DB.Model(&ThumbsUp{}).Save(&s)
 	}
 	//数据在redis中
-	//syscode :=RDB.Get(c,strconv.Itoa(videoId))
-	//syscodeInt,err:=strconv.Atoi(syscode.String())
-	if actionTypeInt == 2 {
+	if actionTypeInt == 2 || data.ActionType == 2 {
 		return errors.New("date err")
 	}
 	//redis中type-1
@@ -53,8 +44,11 @@ func (*ThumbsUp) ActionTypeChange(c *gin.Context, videoId int, userId int) error
 		return err
 	}
 	//存到mysql中更新
-
-	//
+	data.ActionType = data.ActionType + 1
+	err = t.db.Save(&data).Error
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -66,6 +60,7 @@ func (*ThumbsUp) ActionTypeAdd(c *gin.Context, videoId int, userId int) error {
 	actionType, err := RDB.Get(c, strconv.Itoa(videoId)+strconv.Itoa(userId)).Result()
 	//redis里没有数据
 	if err == redis.Nil {
-
+		return err
 	}
+	return nil
 }
