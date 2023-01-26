@@ -14,11 +14,6 @@ type ActionRequest struct {
 	ActionType int32  `json:"action_type"`
 }
 
-type ActionResponse struct {
-	StatusCode int32  `json:"status_code"`
-	StatusMsg  string `json:"status_msg,omitempty"`
-}
-
 type ListResponse struct {
 	StatusCode int32       `json:"status_code"`
 	StatusMsg  string      `json:"status_msg,omitempty"`
