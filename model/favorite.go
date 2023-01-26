@@ -20,6 +20,7 @@ type ThumbsUpMan struct {
 	db *gorm.DB
 }
 
+// ActionTypeChange 取消点赞
 func (t *ThumbsUpMan) ActionTypeChange(c *gin.Context, videoId int, userId int) error {
 	//从redis里查
 	actionType, rdbErr := RDB.Get(c, strconv.Itoa(videoId)+strconv.Itoa(userId)).Result()
@@ -61,10 +62,7 @@ func (t *ThumbsUpMan) ActionTypeChange(c *gin.Context, videoId int, userId int) 
 	return nil
 }
 
-//需要token鉴权完善及sql
-//redis存储key可以考虑userId+videoId
-
-// 添加一条点赞信息
+// ActionTypeAdd 添加一条点赞信息
 func (t *ThumbsUpMan) ActionTypeAdd(c *gin.Context, videoId int, userId int) error {
 	actionType, rdbErr := RDB.Get(c, strconv.Itoa(videoId)+strconv.Itoa(userId)).Result()
 	data := ThumbsUp{}

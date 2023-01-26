@@ -1,8 +1,8 @@
 package douyin
 
 import (
+	"github.com/HumXC/simple-douyin/helper"
 	"github.com/HumXC/simple-douyin/model"
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -39,13 +39,14 @@ type ListUser struct {
 	IsFollow      bool   `json:"is_follow,omitempty"`
 }
 
-// action 赞操作
+// Action 赞操作
 func Action(c *gin.Context) {
-	videoId, _ := strconv.Atoi(c.PostForm("video_id"))
-	actionType, _ := strconv.Atoi(c.PostForm("action_type"))
+	videoId, _ := strconv.Atoi(c.Query("video_id"))
+	actionType, _ := strconv.Atoi(c.Query("action_type"))
+	token := c.Query("token")
 	//解析toke
-	claims, _ := jwt.ParseWithClaims()
-	userId := claims.Valid
+	userClaim, _ := helper.AnalyseToken(token)
+	userId := userClaim.UserId
 	//
 	var action model.ThumbsUpMan
 	if videoId == 0 || actionType == 0 {
@@ -57,7 +58,7 @@ func Action(c *gin.Context) {
 	}
 	//取消点赞操作
 	if actionType == 2 {
-		err := action.ActionTypeChange(c, videoId, userId)
+		err := action.ActionTypeChange(c, videoId, int(userId))
 		if err != nil {
 			c.JSON(http.StatusBadRequest, Response{
 				StatusCode: 403,
@@ -67,7 +68,7 @@ func Action(c *gin.Context) {
 		}
 	}
 	//点赞
-	err := action.ActionTypeAdd(c, videoId, userId)
+	err := action.ActionTypeAdd(c, videoId, int(userId))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, Response{
 			StatusCode: 403,
@@ -82,7 +83,7 @@ func Action(c *gin.Context) {
 	return
 }
 
-// list 喜欢列表
+// List 喜欢列表
 func List(c *gin.Context) {
 
 }

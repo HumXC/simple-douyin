@@ -11,7 +11,7 @@ var RDB = InitRedisDB()
 
 type DouyinDB struct {
 	Video    *videoMan
-	ThumbsUp *thumbsUpMan
+	ThumbsUp *ThumbsUpMan
 	Comment  *commentMan
 }
 
@@ -26,7 +26,7 @@ func NewDouyinDB(fileName string) (*DouyinDB, error) {
 	db.AutoMigrate(&Video{}, &ThumbsUp{}, &Comment{})
 	return &DouyinDB{
 		Video:    &videoMan{db: db},
-		ThumbsUp: &thumbsUpMan{db: db},
+		ThumbsUp: &ThumbsUpMan{db: db},
 		Comment:  &commentMan{db: db},
 	}, nil
 }
