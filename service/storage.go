@@ -19,6 +19,10 @@ func NewStorage(g *gin.Engine, option StorageOption) *Storage {
 		DataDir: option.DataDir,
 	}
 	g.GET("hello", handler.Hello)
+	storageGroup := g.Group("storage")
+
+	videoGroup := storageGroup.Group("video")
+	videoGroup.GET("/:hash", handler.Video)
 
 	return &Storage{
 		engine: g,
