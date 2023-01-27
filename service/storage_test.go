@@ -1,6 +1,7 @@
 package service_test
 
 import (
+	"bytes"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -14,6 +15,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func init() {
+	os.Mkdir(path.Join(TEST_DIR, "storage"), 0755)
+}
+
 // 向 r 发出请求
 func DoRequest(r http.Handler, method, path string, data url.Values) (*http.Response, error) {
 	reqbody := strings.NewReader(data.Encode())
@@ -24,6 +29,38 @@ func DoRequest(r http.Handler, method, path string, data url.Values) (*http.Resp
 	rec := httptest.NewRecorder()
 	r.ServeHTTP(rec, req)
 	return rec.Result(), nil
+}
+func TestUpload(t *testing.T) {
+	dataDir := path.Join(TEST_DIR, "storage")
+	s := service.NewStorage(gin.Default(), service.StorageOption{
+		DataDir: dataDir,
+	})
+	dir := "videos"
+	fileData := []byte("123456")
+	want := "e10adc3949ba59abbe56e057f20f883e"
+
+	// 测试新文件
+	r := bytes.NewReader(fileData)
+	hash, err := s.Upload(r, dir)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if hash != want {
+		t.Errorf("md5 值不匹配 got: %s,want: %s", hash, want)
+		return
+	}
+
+	// 测试已经存在的文件
+	r = bytes.NewReader(fileData)
+	hash, err = s.Upload(r, dir)
+	if err != nil {
+		t.Error(err)
+		return
+	}
+	if hash != want {
+		t.Errorf("md5 值不匹配 got: %s,want: %s", hash, want)
+	}
 }
 func TestVideo(t *testing.T) {
 	dataDir := path.Join(TEST_DIR, "storage")

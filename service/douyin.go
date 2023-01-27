@@ -10,11 +10,10 @@ type DouYin struct {
 }
 
 func NewDouyin(g *gin.Engine) *DouYin { // 初始化 douyin
-	handler := douyin.Handler{}
-	g.GET("hello", handler.Hello)
+	g.GET("hello", douyin.Hello)
 
 	douyinGroup := g.Group("douyin")
-	douyinGroup.GET("feed", handler.Feed)
+	douyinGroup.GET("feed", douyin.Feed)
 
 	return &DouYin{
 		engine: g,
