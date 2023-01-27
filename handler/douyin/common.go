@@ -1,5 +1,18 @@
 package douyin
 
+// 状态码定义，所有状态码应当在写在 StatusOK 与 StatusOtherError 之间
+// 并且新定义的状态码不需要赋值
+// 例如：
+// StatusOK = iota
+// StatusNotFound
+// StatusOtherError = -1
+// 此时 StatusNotFound 的值为 1，不要关心值是多少
+const (
+	StatusOK = iota
+
+	StatusOtherError = -1
+)
+
 type Response struct {
 	StatusCode int32  `json:"status_code"`
 	StatusMsg  string `json:"status_msg,omitempty"`
