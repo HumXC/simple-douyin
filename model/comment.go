@@ -34,6 +34,45 @@ func (c *commentMan) AddComment(comment *Comment) error {
 	return nil
 }
 
+// AddCommentAndUpdateCommentCount 添加评论且视频评论数加一
+func (c *commentMan) AddCommentAndUpdateCommentCount(comment *Comment) error {
+	if comment == nil {
+		return errors.New("AddCommentAndUpdateCount comment空指针")
+	}
+	//执行事务
+	return c.db.Transaction(func(tx *gorm.DB) error {
+		//添加评论数据
+		if err := tx.Create(comment).Error; err != nil {
+			// 返回任何错误都会回滚事务
+			return err
+		}
+		//增加count
+		if err := tx.Exec("UPDATE videos  SET comment_count = comment_count+1 WHERE id=1", comment.VideoId).Error; err != nil {
+			return err
+		}
+		// 返回 nil 提交事务
+		return nil
+	})
+}
+
+// DeleteCommentAndUpdateCountById 根据id删除评论且视频评论数减一
+func (c *commentMan) DeleteCommentAndUpdateCountById(commentId, videoId int64) error {
+	//执行事务
+	return c.db.Transaction(func(tx *gorm.DB) error {
+		//删除评论
+		if err := tx.Exec("DELETE FROM comments WHERE id = ?", commentId).Error; err != nil {
+			// 返回任何错误都会回滚事务
+			return err
+		}
+		//视频评论数减一
+		if err := tx.Exec("UPDATE videos SET comment_count = comment_count-1 WHERE id=? AND comment_count>0", videoId).Error; err != nil {
+			return err
+		}
+		// 返回 nil 提交事务
+		return nil
+	})
+}
+
 // QueryCommentById 根据评论ID查询评论信息方法
 func (c *commentMan) QueryCommentById(id int64, comment *Comment) error {
 	if comment == nil {

@@ -8,8 +8,9 @@ type Video struct {
 	Hash          string
 	Title         string // 视频标题
 	UserID        int64  // 视频上传用户ID
-	CommentCount  int64  // 视频评论数
-	FavoriteCount int64  // 视频点赞数
+	CommentCount  int64  // 视频评论数(用户评论该值加一)
+	FavoriteCount int64  // 视频点赞数(用户点赞该值加一)
+	// TODO 还有需要完善的字段 PlayUrl CoverUrl
 }
 
 // 这个结构体的存在是为了隔离对不同表的操作

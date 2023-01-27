@@ -19,7 +19,7 @@ func TestComment(t *testing.T) {
 		t.Fatal(err)
 	}
 	commentMan := douyinDB.Comment
-	_ = &model.Comment{
+	comment1 := &model.Comment{
 		UserID:  1,
 		VideoId: 1,
 		Content: "测试评论1",
@@ -31,7 +31,7 @@ func TestComment(t *testing.T) {
 	}
 
 	t.Run("AddComment", func(t *testing.T) {
-		err := commentMan.AddComment(comment2)
+		err := commentMan.AddComment(comment1)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -53,5 +53,20 @@ func TestComment(t *testing.T) {
 			t.Fatal(err)
 		}
 		fmt.Println(comments)
+	})
+
+	t.Run("AddCommentAndUpdateCommentCount", func(t *testing.T) {
+		err := commentMan.AddCommentAndUpdateCommentCount(comment1)
+		err = commentMan.AddCommentAndUpdateCommentCount(comment2)
+		if err != nil {
+			t.Fatal(err)
+		}
+	})
+
+	t.Run("DeleteCommentAndUpdateCountById", func(t *testing.T) {
+		err := commentMan.DeleteCommentAndUpdateCountById(1, 1)
+		if err != nil {
+			t.Fatal(err)
+		}
 	})
 }
