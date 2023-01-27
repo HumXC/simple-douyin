@@ -6,7 +6,7 @@ import (
 )
 
 /**
- * @Description
+ * @Description 评论操作-持久层
  * @Author xyc
  * @Date 2023/1/26 21:23
  **/
@@ -22,7 +22,6 @@ type commentMan struct {
 	db *gorm.DB
 }
 
-// AddComment 添加评论方法
 func (c *commentMan) AddComment(comment *Comment) error {
 	if comment == nil {
 		return errors.New("AddComment comment空指针")
@@ -34,7 +33,6 @@ func (c *commentMan) AddComment(comment *Comment) error {
 	return nil
 }
 
-// AddCommentAndUpdateCommentCount 添加评论且视频评论数加一
 func (c *commentMan) AddCommentAndUpdateCommentCount(comment *Comment) error {
 	if comment == nil {
 		return errors.New("AddCommentAndUpdateCount comment空指针")
@@ -55,7 +53,6 @@ func (c *commentMan) AddCommentAndUpdateCommentCount(comment *Comment) error {
 	})
 }
 
-// DeleteCommentAndUpdateCountById 根据id删除评论且视频评论数减一
 func (c *commentMan) DeleteCommentAndUpdateCountById(commentId, videoId int64) error {
 	//执行事务
 	return c.db.Transaction(func(tx *gorm.DB) error {
@@ -73,7 +70,6 @@ func (c *commentMan) DeleteCommentAndUpdateCountById(commentId, videoId int64) e
 	})
 }
 
-// QueryCommentById 根据评论ID查询评论信息方法
 func (c *commentMan) QueryCommentById(id int64, comment *Comment) error {
 	if comment == nil {
 		return errors.New("QueryCommentById comment 空指针")
@@ -81,7 +77,6 @@ func (c *commentMan) QueryCommentById(id int64, comment *Comment) error {
 	return c.db.Where("id=?", id).First(comment).Error
 }
 
-// QueryCommentListByVideoId 根据视频ID查询评论列表
 func (c *commentMan) QueryCommentListByVideoId(videoId int64, comments *[]Comment) error {
 	if comments == nil {
 		return errors.New("QueryCommentListByVideoId comments空指针")
