@@ -18,11 +18,11 @@ type Comment struct {
 	gorm.Model        //通用字段
 }
 
-type commentMan struct {
+type CommentMan struct {
 	db *gorm.DB
 }
 
-func (c *commentMan) AddComment(comment *Comment) error {
+func (c *CommentMan) AddComment(comment *Comment) error {
 	if comment == nil {
 		return errors.New("AddComment comment空指针")
 	}
@@ -33,7 +33,7 @@ func (c *commentMan) AddComment(comment *Comment) error {
 	return nil
 }
 
-func (c *commentMan) AddCommentAndUpdateCommentCount(comment *Comment) error {
+func (c *CommentMan) AddCommentAndUpdateCommentCount(comment *Comment) error {
 	if comment == nil {
 		return errors.New("AddCommentAndUpdateCount comment空指针")
 	}
@@ -45,7 +45,7 @@ func (c *commentMan) AddCommentAndUpdateCommentCount(comment *Comment) error {
 			return err
 		}
 		//增加count
-		if err := tx.Exec("UPDATE videos  SET comment_count = comment_count+1 WHERE id=1", comment.VideoId).Error; err != nil {
+		if err := tx.Exec("UPDATE videos  SET comment_count = comment_count+1 WHERE id=?", comment.VideoId).Error; err != nil {
 			return err
 		}
 		// 返回 nil 提交事务
@@ -53,7 +53,7 @@ func (c *commentMan) AddCommentAndUpdateCommentCount(comment *Comment) error {
 	})
 }
 
-func (c *commentMan) DeleteCommentAndUpdateCountById(commentId, videoId int64) error {
+func (c *CommentMan) DeleteCommentAndUpdateCountById(commentId, videoId int64) error {
 	//执行事务
 	return c.db.Transaction(func(tx *gorm.DB) error {
 		//删除评论
@@ -70,14 +70,14 @@ func (c *commentMan) DeleteCommentAndUpdateCountById(commentId, videoId int64) e
 	})
 }
 
-func (c *commentMan) QueryCommentById(id int64, comment *Comment) error {
+func (c *CommentMan) QueryCommentById(id int64, comment *Comment) error {
 	if comment == nil {
 		return errors.New("QueryCommentById comment 空指针")
 	}
 	return c.db.Where("id=?", id).First(comment).Error
 }
 
-func (c *commentMan) QueryCommentListByVideoId(videoId int64, comments *[]Comment) error {
+func (c *CommentMan) QueryCommentListByVideoId(videoId int64, comments *[]Comment) error {
 	if comments == nil {
 		return errors.New("QueryCommentListByVideoId comments空指针")
 	}
