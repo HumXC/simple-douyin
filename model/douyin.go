@@ -12,7 +12,7 @@ var RDB = InitRedisDB()
 type DouyinDB struct {
 	Video    *videoMan
 	ThumbsUp *ThumbsUpMan
-	Comment  *commentMan
+	Comment  *CommentMan
 }
 
 // 初始化一个用于 douyin 业务的数据库，只支持 sqlite，fileName 是数据库文件的文件名
@@ -23,11 +23,11 @@ func NewDouyinDB(fileName string) (*DouyinDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	db.AutoMigrate(&Video{}, &ThumbsUp{}, &Comment{})
+	db.AutoMigrate(&Video{}, &Comment{}, &ThumbsUp{})
 	return &DouyinDB{
 		Video:    &videoMan{db: db},
 		ThumbsUp: &ThumbsUpMan{db: db},
-		Comment:  &commentMan{db: db},
+		Comment:  &CommentMan{db: db},
 	}, nil
 }
 
