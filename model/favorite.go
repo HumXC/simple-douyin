@@ -2,11 +2,12 @@ package model
 
 import (
 	"errors"
+	"strconv"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"gorm.io/gorm"
-	"strconv"
-	"time"
 )
 
 type ThumbsUp struct {

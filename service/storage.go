@@ -44,6 +44,10 @@ func (s *Storage) Upload(r io.Reader, dir string) (string, error) {
 	}
 	b := bytes.Buffer{}
 	_, err = b.ReadFrom(r)
+	if err != nil {
+		deleteFile()
+		return "", fmt.Errorf("上传文件失败: %w", err)
+	}
 	sum := md5.Sum(b.Bytes())
 	hashStr := hex.EncodeToString(sum[:])
 	fileName := path.Join(s.DataDir, dir, hashStr)
@@ -70,7 +74,10 @@ func NewStorage(g *gin.Engine, option StorageOption) *Storage {
 		engine:  g,
 		DataDir: option.DataDir,
 	}
-	g.GET("hello", storage.Hello(s.DataDir))
+	_, err := os.Stat(option.DataDir)
+	if os.IsNotExist(err) {
+		os.MkdirAll(option.DataDir, 0755)
+	}
 	storageGroup := g.Group("storage")
 
 	videoGroup := storageGroup.Group("video")

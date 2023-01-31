@@ -25,7 +25,7 @@ var DemoVideos = []Video{
 	},
 }
 
-func Feed(c *gin.Context) {
+func (h *Handler) Feed(c *gin.Context) {
 	c.JSON(http.StatusOK, FeedResponse{
 		Response:  Response{StatusCode: 0},
 		VideoList: DemoVideos,

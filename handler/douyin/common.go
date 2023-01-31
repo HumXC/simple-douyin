@@ -1,5 +1,9 @@
 package douyin
 
+import (
+	"github.com/HumXC/simple-douyin/model"
+)
+
 // 状态码定义，所有状态码应当在写在 StatusOK 与 StatusOtherError 之间
 // 并且新定义的状态码不需要赋值
 // 例如：
@@ -12,6 +16,12 @@ const (
 
 	StatusOtherError = -1
 )
+
+// 所有 gin.HandlerFunc 都应该绑定到 Handler 上
+type Handler struct {
+	DB         *model.DouyinDB
+	UploadFunc UploadFunc
+}
 
 type Response struct {
 	StatusCode int32  `json:"status_code"`
