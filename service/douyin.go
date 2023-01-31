@@ -19,6 +19,7 @@ func NewDouyin(g *gin.Engine, db *model.DouyinDB, uploadFunc douyin.UploadFunc) 
 	douyinGroup.GET("feed", handler.Feed)
 	douyinGroup.POST("user/login/", handler.UserLogin)
 	douyinGroup.GET("user/", handler.User)
+	douyinGroup.POST("favorite/action/", handler.Action)
 
 	publish := douyinGroup.Group("publish")
 	publish.POST("action/", handler.PublishAction)

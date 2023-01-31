@@ -40,7 +40,7 @@ type ListUser struct {
 }
 
 // Action 赞操作
-func Action(c *gin.Context) {
+func (h *Handler) Action(c *gin.Context) {
 	videoId, _ := strconv.Atoi(c.Query("video_id"))
 	actionType, _ := strconv.Atoi(c.Query("action_type"))
 	token := c.Query("token")
