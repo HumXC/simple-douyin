@@ -1,7 +1,6 @@
 package service_test
 
 import (
-	"bytes"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -35,13 +34,11 @@ func TestUpload(t *testing.T) {
 	s := service.NewStorage(gin.Default(), service.StorageOption{
 		DataDir: dataDir,
 	})
+	want := "3cf571d4cf2a4c4b2df823a27852a7d5"
 	dir := "videos"
-	fileData := []byte("123456")
-	want := "e10adc3949ba59abbe56e057f20f883e"
-
+	file := "../test/video.mp4"
 	// 测试新文件
-	r := bytes.NewReader(fileData)
-	hash, err := s.Upload(r, dir)
+	hash, err := s.Upload(file, dir)
 	if err != nil {
 		t.Error(err)
 		return
@@ -52,8 +49,7 @@ func TestUpload(t *testing.T) {
 	}
 
 	// 测试已经存在的文件
-	r = bytes.NewReader(fileData)
-	hash, err = s.Upload(r, dir)
+	hash, err = s.Upload(file, dir)
 	if err != nil {
 		t.Error(err)
 		return
