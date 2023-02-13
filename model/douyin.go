@@ -13,8 +13,8 @@ type DouyinDB struct {
 	User      *userMan
 	Video     *videoMan
 	ThumbsUp  *thumbsUpMan
-	Comment   *CommentMan
-	UserLogin *UserLoginMan
+	Comment   *commentMan
+	UserLogin *userLoginMan
 }
 
 // 初始化一个用于 douyin 业务的数据库，只支持 sqlite，fileName 是数据库文件的文件名
@@ -30,7 +30,7 @@ func NewDouyinDB(fileName string) (*DouyinDB, error) {
 		User:     &userMan{db: db},
 		Video:    &videoMan{db: db},
 		ThumbsUp: &thumbsUpMan{db: db},
-		Comment:  &CommentMan{db: db},
+		Comment:  &commentMan{db: db},
 	}, nil
 }
 
