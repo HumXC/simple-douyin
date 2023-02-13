@@ -17,12 +17,12 @@ type ThumbsUp struct {
 	ActionType int   `gorm:"action_type;type:integer()"`
 }
 
-type ThumbsUpMan struct {
+type thumbsUpMan struct {
 	db *gorm.DB
 }
 
 // ActionTypeChange 取消点赞
-func (t *ThumbsUpMan) ActionTypeChange(c *gin.Context, videoId int, userId int) error {
+func (t *thumbsUpMan) ActionTypeChange(c *gin.Context, videoId int, userId int) error {
 	//从redis里查
 	actionType, rdbErr := RDB.Get(c, strconv.Itoa(videoId)+strconv.Itoa(userId)).Result()
 	//从sqlite里查是否存在数据
@@ -64,7 +64,7 @@ func (t *ThumbsUpMan) ActionTypeChange(c *gin.Context, videoId int, userId int) 
 }
 
 // ActionTypeAdd 添加一条点赞信息
-func (t *ThumbsUpMan) ActionTypeAdd(c *gin.Context, videoId int, userId int) error {
+func (t *thumbsUpMan) ActionTypeAdd(c *gin.Context, videoId int, userId int) error {
 	actionType, rdbErr := RDB.Get(c, strconv.Itoa(videoId)+strconv.Itoa(userId)).Result()
 	data := ThumbsUp{}
 	dbErr := t.db.Where("video_id = ? and user_id = ?", videoId, userId).Find(&data).Error

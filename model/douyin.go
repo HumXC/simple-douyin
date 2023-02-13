@@ -10,9 +10,9 @@ import (
 var RDB = InitRedisDB()
 
 type DouyinDB struct {
-	User 	  *UserMan
+	User      *userMan
 	Video     *videoMan
-	ThumbsUp  *ThumbsUpMan
+	ThumbsUp  *thumbsUpMan
 	Comment   *CommentMan
 	UserLogin *UserLoginMan
 }
@@ -27,9 +27,9 @@ func NewDouyinDB(fileName string) (*DouyinDB, error) {
 	}
 	db.AutoMigrate(&Video{}, &Comment{}, &ThumbsUp{})
 	return &DouyinDB{
-		User:	  &UserMan{db: db},
+		User:     &userMan{db: db},
 		Video:    &videoMan{db: db},
-		ThumbsUp: &ThumbsUpMan{db: db},
+		ThumbsUp: &thumbsUpMan{db: db},
 		Comment:  &CommentMan{db: db},
 	}, nil
 }

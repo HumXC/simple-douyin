@@ -1,11 +1,11 @@
 package douyin
 
 import (
-	"github.com/HumXC/simple-douyin/helper"
-	"github.com/HumXC/simple-douyin/model"
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
+
+	"github.com/HumXC/simple-douyin/helper"
+	"github.com/gin-gonic/gin"
 )
 
 type ActionRequest struct {
@@ -40,7 +40,8 @@ type ListUser struct {
 }
 
 // Action 赞操作
-func Action(c *gin.Context) {
+func (h *Handler) Action(c *gin.Context) {
+
 	videoId, _ := strconv.Atoi(c.Query("video_id"))
 	actionType, _ := strconv.Atoi(c.Query("action_type"))
 	token := c.Query("token")
@@ -48,7 +49,7 @@ func Action(c *gin.Context) {
 	userClaim, _ := helper.AnalyseToken(token)
 	userId := userClaim.UserId
 	//
-	var action model.ThumbsUpMan
+	action := h.DB.ThumbsUp
 	if videoId == 0 || actionType == 0 {
 		c.JSON(http.StatusBadRequest, Response{
 			StatusCode: -1,

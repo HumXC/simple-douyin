@@ -17,11 +17,11 @@ type User struct {
 	UserLogin      *UserLogin `json:"user_login" gorm:"foreignkey:UserId"`
 }
 
-type UserMan struct {
+type userMan struct {
 	db *gorm.DB
 }
 
-func (u *UserMan) AddUser(user *User) error {
+func (u *userMan) AddUser(user *User) error {
 	if user == nil {
 		return errors.New("AddUser user空指针")
 	}
