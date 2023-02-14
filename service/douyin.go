@@ -2,6 +2,7 @@ package service
 
 import (
 	"github.com/HumXC/simple-douyin/handler/douyin"
+	"github.com/HumXC/simple-douyin/middlewares"
 	"github.com/HumXC/simple-douyin/model"
 	"github.com/gin-gonic/gin"
 )
@@ -17,8 +18,9 @@ func NewDouyin(g *gin.Engine, db *model.DouyinDB, uploadFunc douyin.UploadFunc) 
 	}
 	douyinGroup := g.Group("douyin")
 	douyinGroup.GET("feed", handler.Feed)
+	douyinGroup.POST("user/register/", handler.UserRegister)
 	douyinGroup.POST("user/login/", handler.UserLogin)
-	douyinGroup.GET("user/", handler.User)
+	douyinGroup.GET("user/", middlewares.JWTMiddleWare(), handler.User)
 
 	publish := douyinGroup.Group("publish")
 	publish.POST("action/", handler.PublishAction)

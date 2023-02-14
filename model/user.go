@@ -45,4 +45,11 @@ func (u *userMan) AddUser(user *User) error {
 	return u.db.Create(user).Error
 }
 
+func (u *userMan) QueryUserInfoByUserId(userId int64, user *User) error {
+	if user == nil {
+		return errors.New("AddUser user空指针")
+	}
+	return u.db.Where("id=?", userId).First(user).Error
+}
+
 

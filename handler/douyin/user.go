@@ -15,19 +15,29 @@ type UserLoginResponse struct {
 	Token  	  string `json:"token"`
 }
 
+type UserInfoResponse struct {
+	Response
+	model.User 	
+}
+
 
 // FIXME： 并未实现登录功能，只是为了方便测试
 func (h *Handler) User(c *gin.Context) {
-	type resp struct {
-		Response
-		User
+	userMan := h.DB.User
+	inputId, ok := c.Get("user_id")
+	if !ok {
+		ResponseError(c, "user_id解析失败")
+		return
 	}
-	c.JSON(http.StatusOK, resp{
+	userId := inputId.(int64)
+	user := model.User{}
+	userMan.QueryUserInfoByUserId(userId, &user)
+	c.JSON(http.StatusOK, UserInfoResponse{
 		Response: Response{
 			StatusCode: StatusOK,
 			StatusMsg:  "OK",
 		},
-		User: User{},
+		User: user,
 	})
 }
 
