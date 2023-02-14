@@ -24,7 +24,7 @@ func NewDouyinDB(fileName string) (*DouyinDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	db.AutoMigrate(&Video{}, &Comment{}, &ThumbsUp{})
+	db.AutoMigrate(&User{}, &Video{}, &Comment{}, &ThumbsUp{})
 	return &DouyinDB{
 		User:     &userMan{db: db},
 		Video:    &videoMan{db: db},
