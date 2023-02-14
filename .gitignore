@@ -1,4 +1,5 @@
 .vscode
-test
+test/*
 Data
 data.db
+!test/video.mp4
