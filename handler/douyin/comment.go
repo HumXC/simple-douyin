@@ -1,7 +1,13 @@
 package douyin
 
 import (
+	"github.com/HumXC/simple-douyin/helper"
+	"github.com/HumXC/simple-douyin/model"
 	"github.com/gin-gonic/gin"
+	"log"
+	"net/http"
+	"strconv"
+	"time"
 )
 
 /**
@@ -9,11 +15,6 @@ import (
  * @Author xyc
  * @Date 2023/1/27 11:53
  **/
-
-const (
-	CREATE = 1 //添加评论
-	DELETE = 2 //删除评论
-)
 
 type CommentActionRequest struct {
 	Token       string `json:"token"`        //用户鉴权token
@@ -38,10 +39,91 @@ type CommentListResponse struct {
 	CommentList []Comment `json:"comment_list,omitempty"` //评论集合
 }
 
-func CommentAction(c *gin.Context) {
+func (h *Handler) CommentAction(c *gin.Context) {
+	commentMan := h.DB.Comment
+	userMan := h.DB.User
+	token := c.Query("token")
+	//解析token
+	userClaim, _ := helper.AnalyseToken(token)
+	userId := userClaim.UserId
+	videoId, _ := strconv.Atoi(c.Query("video_id"))
+	actionType, _ := strconv.Atoi(c.Query("action_type")) //操作类型 1-发布评论，2-删除评论
 
+	//1-发布评论
+	if actionType == 1 {
+		commentText := c.Query("comment_text")
+		var comment model.Comment
+		comment.UserID = userId
+		comment.VideoId = int64(videoId)
+		comment.Content = commentText
+		err := commentMan.AddCommentAndUpdateCommentCount(&comment)
+		//发布评论失败
+		if err != nil {
+			c.JSON(http.StatusOK, Response{
+				StatusCode: StatusOtherError,
+				StatusMsg:  "发布评论失败!",
+			})
+			log.Println("发布评论失败:", err.Error())
+			return
+		}
+		//发布评论成功
+		var user model.User
+		userMan.QueryUserInfoByUserId(userId, &user)
+		userInfo := User{
+			Id:             user.Id,
+			Name:           user.Name,
+			FollowCount:    user.FollowCount,
+			FollowerCount:  user.FollowerCount,
+			IsFollow:       user.IsFollow,
+			TotalFavorited: user.TotalFavorited,
+			FavoriteCount:  user.FavoriteCount,
+		}
+		commentData := Comment{
+			Id:         int64(comment.Model.ID),
+			User:       userInfo,
+			Content:    comment.Content,
+			CreateDate: time.Now().Format("2006-01-02 15:04:05"),
+		}
+		c.JSON(http.StatusOK, CommentActionResponse{
+			Response: Response{
+				StatusCode: StatusOK,
+				StatusMsg:  "发布评论成功!",
+			},
+			Comment: commentData,
+		})
+		return
+	} else {
+		//2-删除评论
+		commentId, _ := strconv.Atoi(c.Query("comment_id")) //评论id
+		var comment = model.Comment{}
+		err := commentMan.QueryCommentById(int64(commentId), &comment)
+		if err != nil {
+			c.JSON(http.StatusOK, Response{
+				StatusCode: StatusOtherError,
+				StatusMsg:  "该评论不存在!",
+			})
+			log.Println("该评论不存在", err.Error())
+			return
+		}
+		err = commentMan.DeleteCommentAndUpdateCountById(int64(commentId), int64(videoId))
+		if err != nil {
+			c.JSON(http.StatusOK, Response{
+				StatusCode: StatusOtherError,
+				StatusMsg:  "删除评论失败!",
+			})
+			log.Println("删除评论失败", err.Error())
+			return
+		}
+		c.JSON(http.StatusOK, CommentActionResponse{
+			Response: Response{
+				StatusCode: StatusOK,
+				StatusMsg:  "删除评论成功!",
+			},
+		})
+		return
+	}
 }
 
-func CommentList(c *gin.Context) {
+func (h *Handler) CommentList(c *gin.Context) {
 
 }

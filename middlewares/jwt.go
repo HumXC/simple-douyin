@@ -41,7 +41,6 @@ func JWTMiddleWare() gin.HandlerFunc {
 			c.Abort() //阻止执行
 			return
 		}
-		c.Set("user_id", tokenStruck.UserId)
 		c.Next()
 	}
 }
