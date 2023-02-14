@@ -20,8 +20,6 @@ type UserInfoResponse struct {
 	model.User 	
 }
 
-
-// FIXME： 并未实现登录功能，只是为了方便测试
 func (h *Handler) User(c *gin.Context) {
 	userMan := h.DB.User
 	inputId, ok := c.Get("user_id")
@@ -30,8 +28,14 @@ func (h *Handler) User(c *gin.Context) {
 		return
 	}
 	userId := inputId.(int64)
+
 	user := model.User{}
-	userMan.QueryUserInfoByUserId(userId, &user)
+	err := userMan.QueryUserInfoByUserId(userId, &user)
+	if err != nil {
+		ResponseError(c, err.Error())
+		return
+	}
+
 	c.JSON(http.StatusOK, UserInfoResponse{
 		Response: Response{
 			StatusCode: StatusOK,
@@ -63,6 +67,7 @@ func (h *Handler) UserLogin(c *gin.Context) {
 	if err != nil {
 		ResponseError(c, err.Error())
 	}
+	
 	resp := UserLoginResponse{
 		Response: Response{
 			StatusCode: 0,
