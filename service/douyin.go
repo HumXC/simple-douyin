@@ -26,6 +26,10 @@ func NewDouyin(g *gin.Engine, db *model.DouyinDB, uploadFunc douyin.UploadFunc) 
 
 	publish := douyinGroup.Group("publish")
 	publish.POST("action/", handler.PublishAction)
+
+	relation := douyinGroup.Group("relation")
+	relation.POST("action/", middlewares.JWTMiddleWare(), handler.RelationAction)
+
 	return &DouYin{
 		engine: g,
 	}
