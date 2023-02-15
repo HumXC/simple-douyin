@@ -24,7 +24,7 @@ func (h *Handler) User(c *gin.Context) {
 	userMan := h.DB.User
 	inputId, ok := c.Get("user_id")
 	if !ok {
-		ResponseError(c, "user_id解析失败")
+		CommonResponseError(c, "user_id解析失败")
 		return
 	}
 	userId := inputId.(int64)
@@ -32,7 +32,7 @@ func (h *Handler) User(c *gin.Context) {
 	user := model.User{}
 	err := userMan.QueryUserInfoByUserId(userId, &user)
 	if err != nil {
-		ResponseError(c, err.Error())
+		CommonResponseError(c, err.Error())
 		return
 	}
 
@@ -51,13 +51,13 @@ func (h *Handler) UserLogin(c *gin.Context) {
 	password := c.Query("password")
 
 	//用户不存在
-	if ok := userMan.UserIsExistByName(username); !ok {
-		ResponseError(c, "用户不存在")
+	if ok := userMan.IsUserExistByName(username); !ok {
+		CommonResponseError(c, "用户不存在")
 		return
 	}
 	//验证用户名和密码
 	if err := userMan.CheckNameAndPwd(username, password); err != nil {
-		ResponseError(c, err.Error())
+		CommonResponseError(c, err.Error())
 		return
 	}
 	//获取user_id
@@ -65,7 +65,8 @@ func (h *Handler) UserLogin(c *gin.Context) {
 	//生成token
 	token ,err := helper.GenerateToken(userId)
 	if err != nil {
-		ResponseError(c, err.Error())
+		CommonResponseError(c, err.Error())
+		return
 	}
 	
 	resp := UserLoginResponse{
@@ -84,23 +85,24 @@ func (h *Handler) UserRegister(c *gin.Context) {
 	username := c.Query("username")
 	inputPwd, ok := c.Get("hash_password")
 	if !ok {
-		ResponseError(c, "密码加密失败")
+		CommonResponseError(c, "密码加密失败")
+		return
 	}
 	password := inputPwd.(string)
 	
 	//用户名存在
-	if ok := userMan.UserIsExistByName(username); ok {
-		ResponseError(c, "用户已存在")
+	if ok := userMan.IsUserExistByName(username); ok {
+		CommonResponseError(c, "用户已存在")
 		return
 	}
 	//用户名为空
 	if username == "" {
-		ResponseError(c, "用户名为空")
+		CommonResponseError(c, "用户名为空")
 		return
 	}
 	//用户名长度超出限制
 	if utf8.RuneCount([]byte(username)) > 32 {
-		ResponseError(c, "用户名长度超过限制")
+		CommonResponseError(c, "用户名长度超过限制")
 		return
 	}
 	//保存到数据库
@@ -109,14 +111,14 @@ func (h *Handler) UserRegister(c *gin.Context) {
 		Password: password,
 	}
 	if err := userMan.AddUser(&user); err != nil {
-		ResponseError(c, err.Error())
+		CommonResponseError(c, err.Error())
 		return
 	}
 	//生成user_id和token
 	userId := user.Id
 	token, err := helper.GenerateToken(userId)
 	if err != nil {
-		ResponseError(c, err.Error())
+		CommonResponseError(c, err.Error())
 		return
 	}
 
@@ -131,11 +133,9 @@ func (h *Handler) UserRegister(c *gin.Context) {
 	c.JSON(http.StatusOK, resp)
 }
 
-func ResponseError(c *gin.Context, msg string) {
-	c.JSON(http.StatusOK, UserLoginResponse{
-		Response: Response{
-			StatusCode: -1,
-			StatusMsg: msg,
-		},
+func CommonResponseError(c *gin.Context, msg string) {
+	c.JSON(http.StatusOK, Response{
+		StatusCode: -1,
+		StatusMsg: msg,
 	})
 }
