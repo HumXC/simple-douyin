@@ -125,5 +125,67 @@ func (h *Handler) CommentAction(c *gin.Context) {
 }
 
 func (h *Handler) CommentList(c *gin.Context) {
+	commentMan := h.DB.Comment
+	userMan := h.DB.User
+	//token := c.Query("token")
+	////解析token
+	//userClaim, _ := helper.AnalyseToken(token)
+	//_ = userClaim.UserId
+	videoId, _ := strconv.Atoi(c.Query("video_id"))
 
+	//获取该视频的所有评论
+	var comments []model.Comment
+	err := commentMan.QueryCommentListByVideoId(int64(videoId), &comments)
+	if err != nil { //获取评论列表失败
+		c.JSON(http.StatusOK, Response{
+			StatusCode: StatusOtherError,
+			StatusMsg:  "获取评论列表失败",
+		})
+		log.Println("获取评论列表失败", err.Error())
+		return
+	}
+
+	//评论列表为空
+	if comments == nil {
+		c.JSON(http.StatusOK, CommentListResponse{
+			Response: Response{
+				StatusCode: StatusOK,
+				StatusMsg:  "该视频暂无评论!",
+			},
+		})
+		return
+	}
+
+	commentList := make([]Comment, len(comments)) //定义切片大小
+	idx := 0
+	for _, comment := range comments {
+		var user model.User //每个评论的用户信息
+		userMan.QueryUserInfoByUserId(comment.UserID, &user)
+		userInfo := User{
+			Id:             user.Id,
+			Name:           user.Name,
+			FollowCount:    user.FollowCount,
+			FollowerCount:  user.FollowerCount,
+			IsFollow:       user.IsFollow,
+			TotalFavorited: user.TotalFavorited,
+			FavoriteCount:  user.FavoriteCount,
+		}
+		commentData := Comment{
+			Id:         int64(comment.Model.ID),
+			User:       userInfo,
+			Content:    comment.Content,
+			CreateDate: time.Now().Format("2006-01-02 15:04:05"),
+		}
+		commentList[idx] = commentData
+		idx = idx + 1
+	}
+
+	//TODO 评论切片待排序,按时间倒序
+	c.JSON(http.StatusOK, CommentListResponse{
+		Response: Response{
+			StatusCode: StatusOK,
+			StatusMsg:  "查询评论列表成功!",
+		},
+		CommentList: commentList,
+	})
 }
