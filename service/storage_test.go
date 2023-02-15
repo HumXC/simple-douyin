@@ -38,7 +38,7 @@ func TestUpload(t *testing.T) {
 	dir := "videos"
 	file := "../test/video.mp4"
 	// 测试新文件
-	hash, err := s.Upload(file, dir)
+	hash, err := s.Upload(file, dir, ".ext")
 	if err != nil {
 		t.Error(err)
 		return
@@ -49,7 +49,7 @@ func TestUpload(t *testing.T) {
 	}
 
 	// 测试已经存在的文件
-	hash, err = s.Upload(file, dir)
+	hash, err = s.Upload(file, dir, ".ext")
 	if err != nil {
 		t.Error(err)
 		return

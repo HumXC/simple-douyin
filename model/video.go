@@ -1,12 +1,15 @@
 package model
 
 import (
+	"time"
+
 	"gorm.io/gorm"
 )
 
 // 保存用户上传的视频
 type Video struct {
-	ID            int64  `gorm:"primarykey"`
+	ID            int64 `gorm:"primarykey"`
+	Time          time.Time
 	Video         string // 视频文件的 hash
 	Cover         string // 视频封面的 hash
 	Title         string // 视频标题
@@ -32,6 +35,16 @@ func (v *videoMan) GetByID(id int) (Video, error) {
 func (v *videoMan) GetByUser(userID int64) ([]Video, error) {
 	videos := make([]Video, 0, 128)
 	tx := v.db.Model(&Video{}).Where("user_id = ?", userID).Find(&videos)
+	return videos, tx.Error
+}
+
+// 按上传时间倒序获取视频, 从latesTime 开始，最多 30 个
+func (v *videoMan) GetFeed(latestTime int64, num int) ([]Video, error) {
+	if num > 30 {
+		num = 30
+	}
+	videos := make([]Video, 0, num)
+	tx := v.db.Order("time DESC").Where("time>?", latestTime).Debug().Find(&videos)
 	return videos, tx.Error
 }
 

@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/HumXC/simple-douyin/helper"
 	"github.com/HumXC/simple-douyin/model"
@@ -15,7 +16,7 @@ import (
 type StorageClient interface {
 	// 上传一个文件到存储
 	// TODO 将 fileName 改成 io.Reader 实现
-	Upload(fileName, dir string) (string, error)
+	Upload(fileName, dir, ext string) (string, error)
 	GetURLWithHash(dir, hash string) string
 }
 
@@ -67,7 +68,8 @@ func (h *Handler) PublishAction(c *gin.Context) {
 		resp.StatusMsg = "上传的文件不是视频"
 		return
 	}
-
+	// 文件扩展名
+	ext := "." + strings.TrimPrefix(mimeType, "video/")
 	// 获取视频封面
 	cover, err := helper.CutVideoWithFfmpeg(file.Name())
 	if err != nil {
@@ -78,13 +80,13 @@ func (h *Handler) PublishAction(c *gin.Context) {
 	defer os.Remove(cover)
 
 	// 上传视频和封面
-	vHash, err := h.StorageClient.Upload(file.Name(), "videos")
+	vHash, err := h.StorageClient.Upload(file.Name(), "videos", ext)
 	if err != nil {
 		resp.StatusCode = StatusOtherError
 		resp.StatusMsg = "视频上传失败"
 		return
 	}
-	cHash, err := h.StorageClient.Upload(cover, "covers")
+	cHash, err := h.StorageClient.Upload(cover, "covers", ".jpg")
 	if err != nil {
 		resp.StatusCode = StatusOtherError
 		resp.StatusMsg = "封面上传失败"
@@ -97,6 +99,7 @@ func (h *Handler) PublishAction(c *gin.Context) {
 		Cover:  cHash,
 		Title:  title,
 		UserID: userID,
+		Time:   time.Now(),
 	})
 	if err != nil {
 		resp.StatusCode = StatusOtherError
