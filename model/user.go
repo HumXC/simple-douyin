@@ -16,6 +16,7 @@ type User struct {
 	IsFollow       bool       `json:"is_follow"`
 	TotalFavorited int64      `json:"total_favorited,omitempty"`
 	FavoriteCount  int64      `json:"favorite_count,omitempty"`
+	Follows		   []User	  `json:"-" gorm:"many2many:relations"`
 }
 
 type userMan struct {
@@ -28,8 +29,13 @@ func (u *userMan) GetUserIdByName(name string) (userId int64) {
 	return user.Id
 }
 
-func (u *userMan) UserIsExistByName(name string) bool {
+func (u *userMan) IsUserExistByName(name string) bool {
 	err := u.db.Where("name=?", name).First(&User{}).Error
+	return err == nil
+}
+
+func (u *userMan) IsUserExistById(id int64) bool {
+	err := u.db.Where("id=?", id).First(&User{}).Error
 	return err == nil
 }
 
@@ -54,6 +60,36 @@ func (u *userMan) QueryUserInfoByUserId(userId int64, user *User) error {
 	}
 	return u.db.Select("id", "name", "follow_count", "follower_count", "is_follow").
 		Where("id=?", userId).First(user).Error
+}
+
+func (u *userMan) AddUserFollow(userId, followId int64) error {
+	return u.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Exec("UPDATE users SET follow_count=follow_count+1 WHERE id = ?", userId).Error; err != nil {
+			return err
+		}
+		if err := tx.Exec("UPDATE users SET follower_count=follower_count+1 WHERE id = ?", followId).Error; err != nil {
+			return err
+		}
+		if err := tx.Exec("INSERT INTO `relations` (`user_id`,`follow_id`) VALUES (?,?)", userId, followId).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+}
+
+func (u *userMan) CancelUserFollow(userId, followId int64) error {
+	return u.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Exec("UPDATE users SET follow_count=follow_count-1 WHERE id = ? AND follow_count>0", userId).Error; err != nil {
+			return err
+		}
+		if err := tx.Exec("UPDATE users SET follower_count=follower_count-1 WHERE id = ? AND follower_count>0", followId).Error; err != nil {
+			return err
+		}
+		if err := tx.Exec("DELETE FROM `relations` WHERE user_id=? AND follow_id=?", userId, followId).Error; err != nil {
+			return err
+		}
+		return nil
+	})
 }
 
 func PwdVerify(hashPassword, password string) error {
