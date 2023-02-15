@@ -11,13 +11,13 @@ import (
 
 type UserLoginResponse struct {
 	Response
-	UserId 	  int64  `json:"user_id"`
-	Token  	  string `json:"token"`
+	UserId 	  int64  `json:"user_id,omitempty"`
+	Token  	  string `json:"token,omitempty"`
 }
 
 type UserInfoResponse struct {
 	Response
-	model.User 	
+	User model.User `json:"user"` 	
 }
 
 func (h *Handler) User(c *gin.Context) {
@@ -82,21 +82,25 @@ func (h *Handler) UserLogin(c *gin.Context) {
 func (h *Handler) UserRegister(c *gin.Context) {
 	userMan := h.DB.User
 	username := c.Query("username")
-	password := c.Query("password")
+	inputPwd, ok := c.Get("hash_password")
+	if !ok {
+		ResponseError(c, "密码加密失败")
+	}
+	password := inputPwd.(string)
 	
 	//用户名存在
 	if ok := userMan.UserIsExistByName(username); ok {
 		ResponseError(c, "用户已存在")
 		return
 	}
-	//用户名或密码为空
-	if username == "" || password == "" {
-		ResponseError(c, "用户名（或密码）为空")
+	//用户名为空
+	if username == "" {
+		ResponseError(c, "用户名为空")
 		return
 	}
-	//用户名或密码长度超出限制
-	if utf8.RuneCount([]byte(username)) > 32 || utf8.RuneCount([]byte(password)) > 32 {
-		ResponseError(c, "用户名（或密码）长度超过限制")
+	//用户名长度超出限制
+	if utf8.RuneCount([]byte(username)) > 32 {
+		ResponseError(c, "用户名长度超过限制")
 		return
 	}
 	//保存到数据库
