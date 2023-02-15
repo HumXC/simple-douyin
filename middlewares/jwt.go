@@ -18,7 +18,7 @@ func JWTMiddleWare() gin.HandlerFunc {
 		}
 		//用户不存在
 		if tokenStr == "" {
-			c.JSON(http.StatusOK, douyin.Response{StatusCode: 401, StatusMsg: "用户不存在"})
+			c.JSON(http.StatusOK, douyin.Response{StatusCode: douyin.UserNotFound, StatusMsg: "用户不存在"})
 			c.Abort() //阻止执行
 			return
 		}
@@ -26,7 +26,7 @@ func JWTMiddleWare() gin.HandlerFunc {
 		tokenStruck, err := helper.AnalyseToken(tokenStr)
 		if err != nil {
 			c.JSON(http.StatusOK, douyin.Response{
-				StatusCode: 403,
+				StatusCode: douyin.AuthFailed,
 				StatusMsg:  "token不正确",
 			})
 			c.Abort() //阻止执行
@@ -35,7 +35,7 @@ func JWTMiddleWare() gin.HandlerFunc {
 		//token超时
 		if time.Now().Unix() > tokenStruck.ExpiresAt {
 			c.JSON(http.StatusOK, douyin.Response{
-				StatusCode: 402,
+				StatusCode: douyin.AuthKeyTimeout,
 				StatusMsg:  "token过期",
 			})
 			c.Abort() //阻止执行

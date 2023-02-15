@@ -29,7 +29,7 @@ func (h *Handler) PublishAction(c *gin.Context) {
 	defer func() {
 		c.JSON(httpStatusCode, resp)
 	}()
-	// TODO: 通过 token 获取用户 id
+	userID := c.GetInt64("user_id")
 	// TODO: 日志
 	title := c.PostForm("title")
 	data, _, err := c.Request.FormFile("data")
@@ -88,9 +88,10 @@ func (h *Handler) PublishAction(c *gin.Context) {
 
 	// 将视频信息写入数据库
 	err = h.DB.Video.Put(model.Video{
-		Video: vHash,
-		Cover: cHash,
-		Title: title,
+		Video:  vHash,
+		Cover:  cHash,
+		Title:  title,
+		UserID: userID,
 	})
 	if err != nil {
 		resp.StatusCode = StatusOtherError

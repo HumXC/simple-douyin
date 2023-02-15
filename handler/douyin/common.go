@@ -12,8 +12,10 @@ import (
 // StatusOtherError = -1
 // 此时 StatusNotFound 的值为 1，不要关心值是多少
 const (
-	StatusOK = iota
-
+	StatusOK   = iota
+	AuthFailed = iota + 400
+	AuthKeyTimeout
+	UserNotFound
 	StatusOtherError = -1
 )
 

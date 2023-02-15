@@ -25,6 +25,7 @@ func NewDouyin(g *gin.Engine, db *model.DouyinDB, uploadFunc douyin.UploadFunc) 
 	douyinGroup.GET("comment/list/", handler.CommentList)
 
 	publish := douyinGroup.Group("publish")
+	publish.Use(middlewares.JWTMiddleWare())
 	publish.POST("action/", handler.PublishAction)
 
 	relation := douyinGroup.Group("relation")
