@@ -10,11 +10,10 @@ import (
 var RDB = InitRedisDB()
 
 type DouyinDB struct {
-	User 	  *UserMan
+	User      *userMan
 	Video     *videoMan
-	ThumbsUp  *ThumbsUpMan
-	Comment   *CommentMan
-	UserLogin *UserLoginMan
+	ThumbsUp  *thumbsUpMan
+	Comment   *commentMan
 }
 
 // 初始化一个用于 douyin 业务的数据库，只支持 sqlite，fileName 是数据库文件的文件名
@@ -25,12 +24,12 @@ func NewDouyinDB(fileName string) (*DouyinDB, error) {
 	if err != nil {
 		return nil, err
 	}
-	db.AutoMigrate(&Video{}, &Comment{}, &ThumbsUp{})
+	db.AutoMigrate(&User{}, &Video{}, &Comment{}, &ThumbsUp{})
 	return &DouyinDB{
-		User:	  &UserMan{db: db},
+		User:     &userMan{db: db},
 		Video:    &videoMan{db: db},
-		ThumbsUp: &ThumbsUpMan{db: db},
-		Comment:  &CommentMan{db: db},
+		ThumbsUp: &thumbsUpMan{db: db},
+		Comment:  &commentMan{db: db},
 	}, nil
 }
 

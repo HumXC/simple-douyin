@@ -15,7 +15,7 @@ func TestDouyinPutAndGetByID(t *testing.T) {
 	videoMan := douyinDB.Video
 	newVideo := model.Video{
 		UserID:        1,
-		Hash:          "testvideo",
+		Video:         "testvideo",
 		Title:         "这是一个测试视频",
 		CommentCount:  0,
 		FavoriteCount: 0,
@@ -28,11 +28,11 @@ func TestDouyinPutAndGetByID(t *testing.T) {
 		}
 	})
 	t.Run("GetByID", func(t *testing.T) {
-		v, err := videoMan.GetByID("1")
+		v, err := videoMan.GetByID(1)
 		if err != nil {
 			t.Fatal(err)
 		}
-		if v.Hash != newVideo.Hash {
+		if v.Video != newVideo.Video {
 			t.Fatal("视频不匹配")
 		}
 	})

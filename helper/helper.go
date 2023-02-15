@@ -2,6 +2,8 @@ package helper
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -14,9 +16,12 @@ var myKey = []byte("douyin")
 
 // GenerateToken 生成token
 func GenerateToken(userId int64) (string, error) {
+	expirationTime := time.Now().Add(7 * 24 * time.Hour)
 	UserClaim := UserClaims{
 		UserId:         userId,
-		StandardClaims: jwt.StandardClaims{},
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: expirationTime.Unix(),
+		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, UserClaim)
 	tokenString, err := token.SignedString(myKey)
