@@ -1,25 +1,24 @@
 package model
 
 import (
-	"github.com/HumXC/simple-douyin/model"
 	"github.com/gin-gonic/gin"
 	"path"
 	"testing"
 )
 
 func TestFavorite(t *testing.T) {
-	douyinDB, err := model.NewDouyinDB(path.Join(TEST_DIR, "douyin.db"))
+	douyinDB, err := NewDouyinDB(path.Join("douyin.db"))
 	var c *gin.Context
 	if err != nil {
 		t.Fatal(err)
 	}
 	ThumbsUpMan := douyinDB.ThumbsUp
-	thumbsUp1 := &model.ThumbsUp{
+	thumbsUp1 := &ThumbsUp{
 		UserId:     1,
 		VideoId:    1,
 		ActionType: 2,
 	}
-	thumbsUp2 := &model.ThumbsUp{
+	thumbsUp2 := &ThumbsUp{
 		UserId:     2,
 		VideoId:    2,
 		ActionType: 1,

@@ -17,10 +17,10 @@ type ActionRequest struct {
 type ListResponse struct {
 	StatusCode int32       `json:"status_code"`
 	StatusMsg  string      `json:"status_msg,omitempty"`
-	VideoList  []ListVideo `json:"video_list"`
+	VideoList  []VideoList `json:"video_list"`
 }
 
-type ListVideo struct {
+type VideoList struct {
 	Id            int64  `json:"id,omitempty"`
 	Author        User   `json:"author"`
 	PlayUrl       string `json:"play_url,omitempty"`
@@ -29,14 +29,6 @@ type ListVideo struct {
 	CommentCount  int64  `json:"comment_count,omitempty"`
 	IsFavorite    bool   `json:"is_favorite,omitempty"`
 	Title         string `json:"title,omitempty"`
-}
-
-type ListUser struct {
-	Id            int64  `json:"id,omitempty"`
-	Name          string `json:"name,omitempty"`
-	FollowCount   int64  `json:"follow_count,omitempty"`
-	FollowerCount int64  `json:"follower_count,omitempty"`
-	IsFollow      bool   `json:"is_follow,omitempty"`
 }
 
 // Action 赞操作
@@ -85,6 +77,14 @@ func (h *Handler) Action(c *gin.Context) {
 }
 
 // List 喜欢列表
-func List(c *gin.Context) {
+func (h *Handler) List(c *gin.Context) {
+	userId, _ := strconv.Atoi(c.Query("user_id"))
+	if userId == 0 {
+		c.JSON(http.StatusBadRequest, Response{
+			StatusCode: -1,
+			StatusMsg:  "InvalidParams",
+		})
+		return
+	}
 
 }

@@ -12,9 +12,9 @@ import (
 
 type ThumbsUp struct {
 	gorm.Model
-	UserId     int64 `gorm:"user_id;type:integer();"`
-	VideoId    int64 `gorm:"video_id;type:integer()"`
-	ActionType int   `gorm:"action_type;type:integer()"`
+	UserId     int64
+	VideoId    int64
+	ActionType int
 }
 
 type thumbsUpMan struct {
