@@ -161,13 +161,11 @@ func (h *Handler) CommentList(c *gin.Context) {
 		var user model.User //每个评论的用户信息
 		userMan.QueryUserInfoByUserId(comment.UserID, &user)
 		userInfo := User{
-			Id:             user.Id,
-			Name:           user.Name,
-			FollowCount:    user.FollowCount,
-			FollowerCount:  user.FollowerCount,
-			IsFollow:       user.IsFollow,
-			TotalFavorited: user.TotalFavorited,
-			FavoriteCount:  user.FavoriteCount,
+			Id:            user.Id,
+			Name:          user.Name,
+			FollowCount:   user.FollowCount,
+			FollowerCount: user.FollowerCount,
+			IsFollow:      user.IsFollow,
 		}
 		commentData := Comment{
 			Id:         int64(comment.Model.ID),
