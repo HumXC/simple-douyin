@@ -12,17 +12,17 @@ import (
 // StatusOtherError = -1
 // 此时 StatusNotFound 的值为 1，不要关心值是多少
 const (
-	StatusOK   = iota
-	AuthFailed = iota + 400
-	AuthKeyTimeout
-	UserNotFound
+	StatusOK         = iota
+	StatusAuthFailed = iota + 400
+	StatusAuthKeyTimeout
+	StatusUserNotFound
 	StatusOtherError = -1
 )
 
 // 所有 gin.HandlerFunc 都应该绑定到 Handler 上
 type Handler struct {
-	DB         *model.DouyinDB
-	UploadFunc UploadFunc
+	DB            *model.DouyinDB
+	StorageClient StorageClient
 }
 
 type Response struct {
@@ -48,13 +48,11 @@ type Comment struct {
 }
 
 type User struct {
-	Id             int64  `json:"id,omitempty"`
-	Name           string `json:"name,omitempty"`
-	FollowCount    int64  `json:"follow_count,omitempty"`
-	FollowerCount  int64  `json:"follower_count,omitempty"`
-	IsFollow       bool   `json:"is_follow,omitempty"`
-	TotalFavorited int64  `json:"total_favorited,omitempty"`
-	FavoriteCount  int64  `json:"favorite_count,omitempty"`
+	Id            int64  `json:"id,omitempty"`
+	Name          string `json:"name,omitempty"`
+	FollowCount   int64  `json:"follow_count,omitempty"`
+	FollowerCount int64  `json:"follower_count,omitempty"`
+	IsFollow      bool   `json:"is_follow,omitempty"`
 }
 
 type Message struct {

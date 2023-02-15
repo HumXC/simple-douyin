@@ -1,13 +1,14 @@
 package douyin
 
 import (
-	"github.com/HumXC/simple-douyin/helper"
-	"github.com/HumXC/simple-douyin/model"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/HumXC/simple-douyin/helper"
+	"github.com/HumXC/simple-douyin/model"
+	"github.com/gin-gonic/gin"
 )
 
 /**
@@ -70,13 +71,11 @@ func (h *Handler) CommentAction(c *gin.Context) {
 		var user model.User
 		userMan.QueryUserInfoByUserId(userId, &user)
 		userInfo := User{
-			Id:             user.Id,
-			Name:           user.Name,
-			FollowCount:    user.FollowCount,
-			FollowerCount:  user.FollowerCount,
-			IsFollow:       user.IsFollow,
-			TotalFavorited: user.TotalFavorited,
-			FavoriteCount:  user.FavoriteCount,
+			Id:            user.Id,
+			Name:          user.Name,
+			FollowCount:   user.FollowCount,
+			FollowerCount: user.FollowerCount,
+			IsFollow:      user.IsFollow,
 		}
 		commentData := Comment{
 			Id:         int64(comment.Model.ID),
