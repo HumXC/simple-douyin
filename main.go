@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	const ServeAddr = ":11451"
+	const ServeAddr = "192.168.90.148:11451"
 	// 初始化数据库
 	db, err := model.NewDouyinDB("./data.db")
 	if err != nil {
@@ -19,8 +19,9 @@ func main() {
 
 	// 以下两个服务可以使用同一个 gin.Engine, 也可以使用两个不同的 gin.Engine
 	storage := service.NewStorage(engine, service.StorageOption{
-		DataDir: "./Data",
+		DataDir:   "./Data",
+		URLPrefix: "http://" + ServeAddr,
 	})
-	_ = service.NewDouyin(engine, db, storage.Upload)
+	_ = service.NewDouyin(engine, db, storage)
 	panic(engine.Run(ServeAddr))
 }

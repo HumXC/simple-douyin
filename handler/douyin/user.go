@@ -11,26 +11,22 @@ import (
 
 type UserLoginResponse struct {
 	Response
-	UserId 	  int64  `json:"user_id,omitempty"`
-	Token  	  string `json:"token,omitempty"`
+	UserId int64  `json:"user_id,omitempty"`
+	Token  string `json:"token,omitempty"`
 }
 
 type UserInfoResponse struct {
 	Response
-	User model.User `json:"user"` 	
+	User User `json:"user"`
 }
 
 func (h *Handler) User(c *gin.Context) {
-	userMan := h.DB.User
-	inputId, ok := c.Get("user_id")
-	if !ok {
+	userID := c.GetInt64("user_id")
+	if userID == 0 {
 		CommonResponseError(c, "user_id解析失败")
 		return
 	}
-	userId := inputId.(int64)
-
-	user := model.User{}
-	err := userMan.QueryUserInfoByUserId(userId, &user)
+	user, err := h.user(userID)
 	if err != nil {
 		CommonResponseError(c, err.Error())
 		return
@@ -43,6 +39,22 @@ func (h *Handler) User(c *gin.Context) {
 		},
 		User: user,
 	})
+}
+
+// 通过 User ID 从数据库获取一个 User 实例
+func (h *Handler) user(id int64) (User, error) {
+	u := model.User{}
+	err := h.DB.User.QueryUserInfoByUserId(id, &u)
+	if err != nil {
+		return User{}, err
+	}
+	return User{
+		Id:            u.Id,
+		FollowCount:   u.FollowCount,
+		FollowerCount: u.FollowerCount,
+		IsFollow:      false,
+		Name:          u.Name,
+	}, nil
 }
 
 func (h *Handler) UserLogin(c *gin.Context) {
@@ -63,12 +75,12 @@ func (h *Handler) UserLogin(c *gin.Context) {
 	//获取user_id
 	userId := userMan.GetUserIdByName(username)
 	//生成token
-	token ,err := helper.GenerateToken(userId)
+	token, err := helper.GenerateToken(userId)
 	if err != nil {
 		CommonResponseError(c, err.Error())
 		return
 	}
-	
+
 	resp := UserLoginResponse{
 		Response: Response{
 			StatusCode: 0,
@@ -89,7 +101,7 @@ func (h *Handler) UserRegister(c *gin.Context) {
 		return
 	}
 	password := inputPwd.(string)
-	
+
 	//用户名存在
 	if ok := userMan.IsUserExistByName(username); ok {
 		CommonResponseError(c, "用户已存在")
@@ -107,7 +119,7 @@ func (h *Handler) UserRegister(c *gin.Context) {
 	}
 	//保存到数据库
 	user := model.User{
-		Name: username,
+		Name:     username,
 		Password: password,
 	}
 	if err := userMan.AddUser(&user); err != nil {
@@ -136,6 +148,6 @@ func (h *Handler) UserRegister(c *gin.Context) {
 func CommonResponseError(c *gin.Context, msg string) {
 	c.JSON(http.StatusOK, Response{
 		StatusCode: -1,
-		StatusMsg: msg,
+		StatusMsg:  msg,
 	})
 }

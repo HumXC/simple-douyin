@@ -1,10 +1,12 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 // 保存用户上传的视频
 type Video struct {
-	gorm.Model
+	ID            int64  `gorm:"primarykey"`
 	Video         string // 视频文件的 hash
 	Cover         string // 视频封面的 hash
 	Title         string // 视频标题
@@ -20,10 +22,17 @@ type videoMan struct {
 }
 
 // 通过 id 获取一个视频记录
-func (v *videoMan) GetByID(id string) (Video, error) {
+func (v *videoMan) GetByID(id int) (Video, error) {
 	var video Video
 	tx := v.db.Model(&Video{}).Where("id = ?", id).Find(&video)
 	return video, tx.Error
+}
+
+// 通过 user_id 获取一个用户发布所有的视频
+func (v *videoMan) GetByUser(userID int64) ([]Video, error) {
+	videos := make([]Video, 0, 128)
+	tx := v.db.Model(&Video{}).Where("user_id = ?", userID).Find(&videos)
+	return videos, tx.Error
 }
 
 // 在数据库里添加一条记录

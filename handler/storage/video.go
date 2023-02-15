@@ -10,10 +10,11 @@ import (
 )
 
 // 读取请求里的 hash 参数, 上传存储的本地视频
-func Video(dataDir string) func(ctx *gin.Context) {
+func Fetch(dataDir string) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
 		hash := ctx.Param("hash")
-		videoName := path.Join(dataDir, "videos", hash)
+		dir := ctx.Param("dir")
+		videoName := path.Join(dataDir, dir, hash)
 		_, err := os.Stat(videoName)
 		if os.IsNotExist(err) {
 			ctx.AbortWithStatus(http.StatusNotFound)

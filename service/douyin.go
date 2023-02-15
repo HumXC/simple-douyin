@@ -11,10 +11,10 @@ type DouYin struct {
 	engine *gin.Engine
 }
 
-func NewDouyin(g *gin.Engine, db *model.DouyinDB, uploadFunc douyin.UploadFunc) *DouYin { // 初始化 douyin
+func NewDouyin(g *gin.Engine, db *model.DouyinDB, storageClient douyin.StorageClient) *DouYin { // 初始化 douyin
 	handler := douyin.Handler{
-		DB:         db,
-		UploadFunc: uploadFunc,
+		DB:            db,
+		StorageClient: storageClient,
 	}
 	douyinGroup := g.Group("douyin")
 	douyinGroup.GET("feed", handler.Feed)
@@ -27,7 +27,7 @@ func NewDouyin(g *gin.Engine, db *model.DouyinDB, uploadFunc douyin.UploadFunc) 
 	publish := douyinGroup.Group("publish")
 	publish.Use(middlewares.JWTMiddleWare())
 	publish.POST("action/", handler.PublishAction)
-
+	publish.GET("list/", handler.PublishList)
 	relation := douyinGroup.Group("relation")
 	relation.POST("action/", middlewares.JWTMiddleWare(), handler.RelationAction)
 

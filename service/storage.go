@@ -15,11 +15,13 @@ import (
 // 该文件实现了一个文件服务器, 用于给用户存储/发送视频
 
 type Storage struct {
-	engine  *gin.Engine
-	DataDir string
+	engine    *gin.Engine
+	DataDir   string
+	hashToURL func(dir, hash string) string
 }
 type StorageOption struct {
-	DataDir string
+	DataDir   string
+	URLPrefix string
 }
 
 // 将文件保存到本地存储，保存完成返回文件的 MD5 hash 值
@@ -68,6 +70,10 @@ func (s *Storage) Upload(file, dir string) (string, error) {
 	}
 	return hashStr, nil
 }
+
+func (s *Storage) GetURLWithHash(dir, hash string) string {
+	return s.hashToURL(dir, hash)
+}
 func NewStorage(g *gin.Engine, option StorageOption) *Storage {
 	s := &Storage{
 		engine:  g,
@@ -79,8 +85,10 @@ func NewStorage(g *gin.Engine, option StorageOption) *Storage {
 	}
 	storageGroup := g.Group("storage")
 
-	videoGroup := storageGroup.Group("video")
-	videoGroup.GET("/:hash", storage.Video(s.DataDir))
+	storageGroup.GET(":dir/:hash", storage.Fetch(s.DataDir))
 
+	s.hashToURL = func(dir, hash string) string {
+		return option.URLPrefix + "/storage/" + dir + "/" + hash
+	}
 	return s
 }

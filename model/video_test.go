@@ -28,7 +28,7 @@ func TestDouyinPutAndGetByID(t *testing.T) {
 		}
 	})
 	t.Run("GetByID", func(t *testing.T) {
-		v, err := videoMan.GetByID("1")
+		v, err := videoMan.GetByID(1)
 		if err != nil {
 			t.Fatal(err)
 		}
