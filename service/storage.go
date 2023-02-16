@@ -8,6 +8,7 @@ import (
 	"os"
 	"path"
 
+	"github.com/HumXC/simple-douyin/config"
 	"github.com/HumXC/simple-douyin/handler/storage"
 	"github.com/gin-gonic/gin"
 )
@@ -74,21 +75,21 @@ func (s *Storage) Upload(file, dir, extName string) (string, error) {
 func (s *Storage) GetURLWithHash(dir, hash string) string {
 	return s.hashToURL(dir, hash)
 }
-func NewStorage(g *gin.Engine, option StorageOption) *Storage {
+func NewStorage(g *gin.Engine, conf config.Storage) *Storage {
 	s := &Storage{
 		engine:  g,
-		DataDir: option.DataDir,
+		DataDir: conf.DataDir,
 	}
-	_, err := os.Stat(option.DataDir)
+	_, err := os.Stat(conf.DataDir)
 	if os.IsNotExist(err) {
-		os.MkdirAll(option.DataDir, 0755)
+		os.MkdirAll(conf.DataDir, 0755)
 	}
 	storageGroup := g.Group("storage")
 
 	storageGroup.GET(":dir/:hash", storage.Fetch(s.DataDir))
 
 	s.hashToURL = func(dir, hash string) string {
-		return option.URLPrefix + "/storage/" + dir + "/" + hash
+		return "http://" + conf.ServeAddr + "/storage/" + dir + "/" + hash
 	}
 	return s
 }

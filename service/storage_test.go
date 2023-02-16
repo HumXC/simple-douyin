@@ -10,6 +10,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/HumXC/simple-douyin/config"
 	"github.com/HumXC/simple-douyin/service"
 	"github.com/gin-gonic/gin"
 )
@@ -31,7 +32,7 @@ func DoRequest(r http.Handler, method, path string, data url.Values) (*http.Resp
 }
 func TestUpload(t *testing.T) {
 	dataDir := path.Join(TEST_DIR, "storage")
-	s := service.NewStorage(gin.Default(), service.StorageOption{
+	s := service.NewStorage(gin.Default(), config.Storage{
 		DataDir: dataDir,
 	})
 	want := "3cf571d4cf2a4c4b2df823a27852a7d5"
@@ -61,7 +62,7 @@ func TestUpload(t *testing.T) {
 func TestVideo(t *testing.T) {
 	dataDir := path.Join(TEST_DIR, "storage")
 	r := gin.Default()
-	_ = service.NewStorage(r, service.StorageOption{
+	_ = service.NewStorage(r, config.Storage{
 		DataDir: dataDir,
 	})
 

@@ -75,7 +75,8 @@ func (h *Handler) CommentAction(c *gin.Context) {
 			Name:          user.Name,
 			FollowCount:   user.FollowCount,
 			FollowerCount: user.FollowerCount,
-			IsFollow:      user.IsFollow,
+			// FIXME 获取正确的 IsFollow
+			IsFollow: false,
 		}
 		commentData := Comment{
 			Id:         int64(comment.Model.ID),
@@ -165,7 +166,8 @@ func (h *Handler) CommentList(c *gin.Context) {
 			Name:          user.Name,
 			FollowCount:   user.FollowCount,
 			FollowerCount: user.FollowerCount,
-			IsFollow:      user.IsFollow,
+			// FIXME 获取正确的 IsFollow
+			IsFollow: false,
 		}
 		commentData := Comment{
 			Id:         int64(comment.Model.ID),

@@ -8,15 +8,14 @@ import (
 )
 
 type User struct {
-	Id             int64      `json:"id"`
-	Name           string     `json:"name"`
-	Password	   string  	  `json:"-"`
-	FollowCount    int64      `json:"follow_count"`
-	FollowerCount  int64      `json:"follower_count"`
-	IsFollow       bool       `json:"is_follow"`
-	TotalFavorited int64      `json:"total_favorited,omitempty"`
-	FavoriteCount  int64      `json:"favorite_count,omitempty"`
-	Follows		   []User	  `json:"-" gorm:"many2many:relations"`
+	Id             int64 `gorm:"primarykey"`
+	Name           string
+	Password       string
+	FollowCount    int64
+	FollowerCount  int64
+	TotalFavorited int64
+	FavoriteCount  int64
+	Follows        []User `gorm:"many2many:relations"`
 }
 
 type userMan struct {
@@ -58,8 +57,8 @@ func (u *userMan) QueryUserByUserId(userId int64, user *User) error {
 	if user == nil {
 		return errors.New("AddUser user空指针")
 	}
-	return u.db.Select("id", "name", "follow_count", "follower_count", "is_follow").
-		Where("id=?", userId).First(user).Error
+	err := u.db.Where("id=?", userId).Find(user).Error
+	return err
 }
 
 func (u *userMan) AddUserFollow(userId, followId int64) error {
@@ -94,11 +93,9 @@ func (u *userMan) CancelUserFollow(userId, followId int64) error {
 
 func PwdVerify(hashPassword, password string) error {
 	//核对密码,比较用户输入的明文和和数据库取出的的密码解析后是否匹配
-	err := bcrypt.CompareHashAndPassword([]byte(hashPassword),[]byte(password))
+	err := bcrypt.CompareHashAndPassword([]byte(hashPassword), []byte(password))
 	if err != nil {
 		return errors.New("用户名或密码错误")
 	}
 	return nil
 }
-
-

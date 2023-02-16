@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -35,7 +34,6 @@ func Fetch(dataDir string) func(*gin.Context) {
 		var buf = videoBuf.Get().([]byte)
 		io.CopyBuffer(c.Writer, f, buf)
 		videoBuf.Put(buf)
-		fmt.Println(err)
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 		}
