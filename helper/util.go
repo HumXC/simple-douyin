@@ -21,6 +21,10 @@ func CutVideoWithFfmpeg(video string) (output string, err error) {
 	var stdErr bytes.Buffer
 	c.Stderr = &stdErr
 	_, err = c.Output()
+	if c.Err != nil {
+		err = c.Err
+		return
+	}
 	if err != nil {
 		err = errors.New(stdErr.String())
 		return
@@ -36,6 +40,10 @@ func SmallVideoWithFfmpeg(video string) (output string, err error) {
 	var stdErr bytes.Buffer
 	c.Stderr = &stdErr
 	_, err = c.Output()
+	if c.Err != nil {
+		err = c.Err
+		return
+	}
 	if err != nil {
 		err = errors.New(stdErr.String())
 		return
