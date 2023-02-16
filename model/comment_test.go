@@ -2,9 +2,10 @@ package model_test
 
 import (
 	"fmt"
-	"github.com/HumXC/simple-douyin/model"
 	"path"
 	"testing"
+
+	"github.com/HumXC/simple-douyin/model"
 )
 
 /**
@@ -14,7 +15,7 @@ import (
  **/
 
 func TestComment(t *testing.T) {
-	douyinDB, err := model.NewDouyinDB(path.Join(TEST_DIR, "douyin.db"))
+	douyinDB, err := model.NewDouyinDB(path.Join(TEST_DIR, "douyin.db"), nil)
 	if err != nil {
 		t.Fatal(err)
 	}

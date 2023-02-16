@@ -8,7 +8,7 @@ import (
 )
 
 func TestDouyinPutAndGetByID(t *testing.T) {
-	douyinDB, err := model.NewDouyinDB(path.Join(TEST_DIR, "douyin.db"))
+	douyinDB, err := model.NewDouyinDB(path.Join(TEST_DIR, "douyin.db"), nil)
 	if err != nil {
 		t.Fatal(err)
 	}

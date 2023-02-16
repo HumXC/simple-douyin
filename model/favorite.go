@@ -18,13 +18,14 @@ type ThumbsUp struct {
 }
 
 type thumbsUpMan struct {
-	db *gorm.DB
+	db  *gorm.DB
+	rdb *redis.Client
 }
 
 // ActionTypeChange 取消点赞
 func (t *thumbsUpMan) ActionTypeChange(c *gin.Context, videoId int, userId int) error {
 	//从redis里查
-	actionType, rdbErr := RDB.Get(c, strconv.Itoa(videoId)+strconv.Itoa(userId)).Result()
+	actionType, rdbErr := t.rdb.Get(c, strconv.Itoa(videoId)+strconv.Itoa(userId)).Result()
 	//从sqlite里查是否存在数据
 	data := ThumbsUp{}
 	dbErr := t.db.Where("video_id = ? and user_id = ?", videoId, userId).Find(&data).Error
@@ -33,7 +34,7 @@ func (t *thumbsUpMan) ActionTypeChange(c *gin.Context, videoId int, userId int) 
 	if rdbErr == redis.Nil || dbErr == gorm.ErrRecordNotFound {
 		//不存在redis，存在sqlite
 		if rdbErr == redis.Nil && dbErr != gorm.ErrRecordNotFound {
-			RDB.Set(c, strconv.Itoa(videoId)+strconv.Itoa(userId), actionType, time.Hour*24)
+			t.rdb.Set(c, strconv.Itoa(videoId)+strconv.Itoa(userId), actionType, time.Hour*24)
 			data.ActionType = data.ActionType + 1
 			err := t.db.Save(&data).Error
 			if err != nil {
@@ -50,7 +51,7 @@ func (t *thumbsUpMan) ActionTypeChange(c *gin.Context, videoId int, userId int) 
 		return errors.New("date err")
 	}
 	//redis中type-1
-	_, err := RDB.Incr(c, strconv.Itoa(videoId)+strconv.Itoa(userId)).Result()
+	_, err := t.rdb.Incr(c, strconv.Itoa(videoId)+strconv.Itoa(userId)).Result()
 	if err != nil {
 		return err
 	}
@@ -65,12 +66,12 @@ func (t *thumbsUpMan) ActionTypeChange(c *gin.Context, videoId int, userId int) 
 
 // ActionTypeAdd 添加一条点赞信息
 func (t *thumbsUpMan) ActionTypeAdd(c *gin.Context, videoId int, userId int) error {
-	actionType, rdbErr := RDB.Get(c, strconv.Itoa(videoId)+strconv.Itoa(userId)).Result()
+	actionType, rdbErr := t.rdb.Get(c, strconv.Itoa(videoId)+strconv.Itoa(userId)).Result()
 	data := ThumbsUp{}
 	dbErr := t.db.Where("video_id = ? and user_id = ?", videoId, userId).Find(&data).Error
 	//redis里没有数据
 	if rdbErr == redis.Nil && dbErr == gorm.ErrRecordNotFound {
-		RDB.Set(c, strconv.Itoa(videoId)+strconv.Itoa(userId), actionType, time.Hour*24)
+		t.rdb.Set(c, strconv.Itoa(videoId)+strconv.Itoa(userId), actionType, time.Hour*24)
 		data.ActionType = data.ActionType + 1
 		err := t.db.Save(&data).Error
 		if err != nil {

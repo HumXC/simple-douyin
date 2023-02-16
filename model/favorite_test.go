@@ -1,13 +1,15 @@
 package model
 
 import (
-	"github.com/gin-gonic/gin"
 	"path"
 	"testing"
+
+	"github.com/gin-gonic/gin"
 )
 
 func TestFavorite(t *testing.T) {
-	douyinDB, err := NewDouyinDB(path.Join("douyin.db"))
+	// FIXME 传入 Redis 实例
+	douyinDB, err := NewDouyinDB(path.Join("douyin.db"), nil)
 	var c *gin.Context
 	if err != nil {
 		t.Fatal(err)
