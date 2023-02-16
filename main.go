@@ -16,6 +16,7 @@ import (
 const ConfigFile = "./config.yaml"
 
 func main() {
+	// 读取配置文件，没有配置文件就创建一个然后退出
 	conf, err := config.Get(ConfigFile)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
@@ -28,12 +29,15 @@ func main() {
 		}
 		panic(err)
 	}
+
+	// 初始化两个独立的服务，其中 douyin 服务依赖 storage 服务
 	storageEngine, storageClient := Storage(conf.Storage)
 	douyinEngine := Douyin(conf.Douyin, storageClient)
 
-	go func(s *gin.Engine, serveAddr string) {
-		panic(s.Run(serveAddr))
-	}(storageEngine, conf.Storage.ServeAddr)
+	// 另开个协程抛跑 storage 服务
+	go func() {
+		panic(storageEngine.Run(conf.Storage.ServeAddr))
+	}()
 
 	panic(douyinEngine.Run(conf.Douyin.ServeAddr))
 }
@@ -57,7 +61,5 @@ func Douyin(c config.Douyin, storage douyin.StorageClient) *gin.Engine {
 func Storage(c config.Storage) (*gin.Engine, *service.Storage) {
 	engin := gin.Default()
 	storage := service.NewStorage(engin, c)
-
 	return engin, storage
-
 }

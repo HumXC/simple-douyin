@@ -21,16 +21,17 @@ func Fetch(dataDir string) func(*gin.Context) {
 	return func(c *gin.Context) {
 		hash := c.Param("hash")
 		dir := c.Param("dir")
-		videoName := path.Join(dataDir, dir, hash)
-		_, err := os.Stat(videoName)
+		fileName := path.Join(dataDir, dir, hash)
+		_, err := os.Stat(fileName)
 		if os.IsNotExist(err) {
 			c.AbortWithStatus(http.StatusNotFound)
 		}
-		f, err := os.Open(videoName)
+		f, err := os.Open(fileName)
 		// TODO: 将错误写入日志
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 		}
+		defer f.Close()
 		var buf = videoBuf.Get().([]byte)
 		io.CopyBuffer(c.Writer, f, buf)
 		videoBuf.Put(buf)

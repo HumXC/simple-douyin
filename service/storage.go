@@ -28,7 +28,7 @@ type StorageOption struct {
 // 将文件保存到本地存储，保存完成返回文件的 MD5 hash 值
 // dir 是需要保存的目录
 // 如果 dir="videos", 那么上传的文件就会保存在 [DataDir]/videos 目录
-func (s *Storage) Upload(file, dir, extName string) (string, error) {
+func (s *Storage) Upload(file, dir string) (string, error) {
 	// 创建文件夹
 	fullDir := path.Join(s.DataDir, dir)
 	_, err := os.Stat(fullDir)
@@ -53,7 +53,7 @@ func (s *Storage) Upload(file, dir, extName string) (string, error) {
 	}
 	sum := md5.Sum(b.Bytes())
 	hashStr := hex.EncodeToString(sum[:])
-	fileName := path.Join(s.DataDir, dir, hashStr+extName)
+	fileName := path.Join(s.DataDir, dir, hashStr)
 	// 如果已有同名文件，则删除新创建的文件
 	_, err = os.Stat(fileName)
 	if err == nil || os.IsExist(err) {
@@ -69,7 +69,7 @@ func (s *Storage) Upload(file, dir, extName string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("上传文件失败: %w", err)
 	}
-	return hashStr + extName, nil
+	return hashStr, nil
 }
 
 func (s *Storage) GetURLWithHash(dir, hash string) string {
