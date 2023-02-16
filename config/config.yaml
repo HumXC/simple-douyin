@@ -1,0 +1,13 @@
+server:
+  host: 127.0.0.1
+  port: 11451
+
+redis:
+  host: 127.0.0.1
+  port: 6379
+  database: 0
+
+sqlLite:
+  path: ./data.db
+
+name: xuyuchao
