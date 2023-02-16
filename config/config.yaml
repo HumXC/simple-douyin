@@ -9,5 +9,3 @@ redis:
 
 sqlLite:
   path: ./data.db
-
-name: xuyuchao
