@@ -3,4 +3,4 @@ test/*
 Data
 data.db
 !test/video.mp4
-.config.yaml
+config.yaml
