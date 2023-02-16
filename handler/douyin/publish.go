@@ -52,7 +52,6 @@ func (h *Handler) PublishAction(c *gin.Context) {
 		return
 	}
 	defer file.Close()
-	defer os.Remove(file.Name())
 
 	// 将 data 写到 file
 	_, _ = io.Copy(file, data)
@@ -68,42 +67,48 @@ func (h *Handler) PublishAction(c *gin.Context) {
 		resp.StatusMsg = "上传的文件不是视频"
 		return
 	}
-	// 获取视频封面
-	cover, err := helper.CutVideoWithFfmpeg(file.Name())
-	if err != nil {
-		resp.StatusCode = StatusOtherError
-		resp.StatusMsg = "无法获取视频封面"
-		return
-	}
-	defer os.Remove(cover)
+	// 走到这就已经返回 “发布成功了，其实还有额外的工作在另一个协程进行”
+	// 后续的压缩视频等工作
+	go func(srcVideo string) {
+		// FIXME 错误处理
+		// 压缩视频
+		video, err := helper.SmallVideoWithFfmpeg(srcVideo)
+		if err != nil {
+			panic(err)
+		}
+		// video := srcVideo
+		defer os.Remove(video)
+		// 获取视频封面
+		cover, err := helper.CutVideoWithFfmpeg(video)
+		if err != nil {
+			panic(err)
+		}
+		defer os.Remove(cover)
 
-	// 上传视频和封面
-	vHash, err := h.StorageClient.Upload(file.Name(), "videos")
-	if err != nil {
-		resp.StatusCode = StatusOtherError
-		resp.StatusMsg = "视频上传失败"
-		return
-	}
-	cHash, err := h.StorageClient.Upload(cover, "covers")
-	if err != nil {
-		resp.StatusCode = StatusOtherError
-		resp.StatusMsg = "封面上传失败"
-		return
-	}
+		// 上传视频和封面
+		vHash, err := h.StorageClient.Upload(video, "videos")
+		if err != nil {
+			panic(err)
+		}
+		cHash, err := h.StorageClient.Upload(cover, "covers")
+		if err != nil {
+			panic(err)
+		}
 
-	// 将视频信息写入数据库
-	err = h.DB.Video.Put(model.Video{
-		Video:  vHash,
-		Cover:  cHash,
-		Title:  title,
-		UserID: userID,
-		Time:   time.Now(),
-	})
-	if err != nil {
-		resp.StatusCode = StatusOtherError
-		resp.StatusMsg = "服务器错误"
-		return
-	}
+		// 将视频信息写入数据库
+		err = h.DB.Video.Put(model.Video{
+			Video:  vHash,
+			Cover:  cHash,
+			Title:  title,
+			UserID: userID,
+			Time:   time.Now(),
+		})
+		if err != nil {
+			panic(err)
+		}
+		os.Remove(srcVideo)
+	}(file.Name())
+	return
 }
 
 func (h *Handler) PublishList(c *gin.Context) {
