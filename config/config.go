@@ -13,7 +13,7 @@ type Config struct {
 type Douyin struct {
 	ServeAddr string `yaml:"serve-addr"`
 	SQL       SQL    `yaml:"sql"`
-	Redis     Redis  `yaml:"rdis"`
+	Redis     Redis  `yaml:"redis"`
 }
 
 type SQL struct {
