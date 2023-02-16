@@ -23,45 +23,48 @@ type userMan struct {
 }
 
 func (u *userMan) GetIdByName(name string) (userId int64) {
-	user := User{}
-	u.db.Where("name=?", name).First(&user)
-	return user.Id
+	var id int64
+	u.db.Model(&User{}).Select("id").Where("name=?", name).Find(&id)
+	return id
 }
 
-func (u *userMan) IsUserExistByName(name string) bool {
-	err := u.db.Where("name=?", name).First(&User{}).Error
-	return err == nil
+func (u *userMan) IsExistWithName(name string) bool {
+	var id int64
+	err := u.db.Model(&User{}).Select("id").Where("name=?", name).Find(&id).Error
+	return err == nil && id != 0
 }
 
-func (u *userMan) IsUserExistById(id int64) bool {
-	err := u.db.Where("id=?", id).First(&User{}).Error
-	return err == nil
+func (u *userMan) IsExistWithId(id int64) bool {
+	var _id int64
+	err := u.db.Model(&User{}).Select("id").Where("id=?", id).First(&_id).Error
+	return err == nil && _id != 0
 }
 
 func (u *userMan) CheckNameAndPwd(name string, password string) error {
-	user := User{}
-	u.db.Where("name=?", name).First(&user)
-	err := PwdVerify(user.Password, password)
+	pwd := ""
+	u.db.Model(&User{}).Select("password").Where("name=?", name).Find(&pwd)
+	err := PwdVerify(pwd, password)
 	return err
 }
 
 func (u *userMan) AddUser(user *User) error {
 	if user == nil {
-		return errors.New("AddUser user空指针")
+		return errors.New("AddUser user 空指针")
 	}
 	//注册用户
 	return u.db.Create(user).Error
 }
 
-func (u *userMan) QueryUserByUserId(userId int64, user *User) error {
+func (u *userMan) QueryById(userId int64, user *User) error {
 	if user == nil {
 		return errors.New("AddUser user空指针")
 	}
-	err := u.db.Where("id=?", userId).Find(user).Error
+	// 此处 Omit 是因为外部从来都不需要 password
+	err := u.db.Omit("password").Where("id=?", userId).Find(user).Error
 	return err
 }
 
-func (u *userMan) AddUserFollow(userId, followId int64) error {
+func (u *userMan) Follow(userId, followId int64) error {
 	return u.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Exec("UPDATE users SET follow_count=follow_count+1 WHERE id = ?", userId).Error; err != nil {
 			return err
@@ -76,7 +79,7 @@ func (u *userMan) AddUserFollow(userId, followId int64) error {
 	})
 }
 
-func (u *userMan) CancelUserFollow(userId, followId int64) error {
+func (u *userMan) CancelFollow(userId, followId int64) error {
 	return u.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Exec("UPDATE users SET follow_count=follow_count-1 WHERE id = ? AND follow_count>0", userId).Error; err != nil {
 			return err

@@ -44,7 +44,7 @@ func (h *Handler) User(c *gin.Context) {
 // 通过 User ID 从数据库获取一个 User 实例
 func (h *Handler) user(id int64) (User, error) {
 	u := model.User{}
-	err := h.DB.User.QueryUserByUserId(id, &u)
+	err := h.DB.User.QueryById(id, &u)
 	if err != nil {
 		return User{}, err
 	}
@@ -63,7 +63,7 @@ func (h *Handler) UserLogin(c *gin.Context) {
 	password := c.Query("password")
 
 	//用户不存在
-	if ok := userMan.IsUserExistByName(username); !ok {
+	if ok := userMan.IsExistWithName(username); !ok {
 		CommonResponseError(c, "用户不存在")
 		return
 	}
@@ -103,7 +103,7 @@ func (h *Handler) UserRegister(c *gin.Context) {
 	password := inputPwd.(string)
 
 	//用户名存在
-	if ok := userMan.IsUserExistByName(username); ok {
+	if ok := userMan.IsExistWithName(username); ok {
 		CommonResponseError(c, "用户已存在")
 		return
 	}

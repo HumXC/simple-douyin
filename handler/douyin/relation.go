@@ -29,7 +29,7 @@ func (h *Handler) RelationAction(c *gin.Context) {
 
 	userMan := h.DB.User
 	//关注用户不存在
-	if !userMan.IsUserExistById(followId){
+	if !userMan.IsExistWithId(followId) {
 		CommonResponseError(c, "关注用户不存在")
 		return
 	}
@@ -44,26 +44,26 @@ func (h *Handler) RelationAction(c *gin.Context) {
 		return
 	}
 
-	switch(actionType) {
+	switch actionType {
 	case 1:
-		err := userMan.AddUserFollow(userId, followId)
+		err := userMan.Follow(userId, followId)
 		if err != nil {
 			CommonResponseError(c, err.Error())
 			return
 		}
 		c.JSON(http.StatusOK, Response{
 			StatusCode: 0,
-			StatusMsg: "关注成功",
+			StatusMsg:  "关注成功",
 		})
 	case 2:
-		err := userMan.CancelUserFollow(userId, followId)
+		err := userMan.CancelFollow(userId, followId)
 		if err != nil {
 			CommonResponseError(c, err.Error())
 			return
 		}
 		c.JSON(http.StatusOK, Response{
 			StatusCode: 0,
-			StatusMsg: "取关成功",
+			StatusMsg:  "取关成功",
 		})
 	}
 
