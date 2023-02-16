@@ -69,7 +69,7 @@ func (h *Handler) CommentAction(c *gin.Context) {
 		}
 		//发布评论成功
 		var user model.User
-		userMan.QueryUserInfoByUserId(userId, &user)
+		userMan.QueryUserByUserId(userId, &user)
 		userInfo := User{
 			Id:            user.Id,
 			Name:          user.Name,
@@ -159,7 +159,7 @@ func (h *Handler) CommentList(c *gin.Context) {
 	idx := 0
 	for _, comment := range comments {
 		var user model.User //每个评论的用户信息
-		userMan.QueryUserInfoByUserId(comment.UserID, &user)
+		userMan.QueryUserByUserId(comment.UserID, &user)
 		userInfo := User{
 			Id:            user.Id,
 			Name:          user.Name,

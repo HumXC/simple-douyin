@@ -44,7 +44,7 @@ func (h *Handler) User(c *gin.Context) {
 // 通过 User ID 从数据库获取一个 User 实例
 func (h *Handler) user(id int64) (User, error) {
 	u := model.User{}
-	err := h.DB.User.QueryUserInfoByUserId(id, &u)
+	err := h.DB.User.QueryUserByUserId(id, &u)
 	if err != nil {
 		return User{}, err
 	}
@@ -73,7 +73,7 @@ func (h *Handler) UserLogin(c *gin.Context) {
 		return
 	}
 	//获取user_id
-	userId := userMan.GetUserIdByName(username)
+	userId := userMan.GetIdByName(username)
 	//生成token
 	token, err := helper.GenerateToken(userId)
 	if err != nil {

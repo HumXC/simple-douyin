@@ -23,7 +23,7 @@ type userMan struct {
 	db *gorm.DB
 }
 
-func (u *userMan) GetUserIdByName(name string) (userId int64) {
+func (u *userMan) GetIdByName(name string) (userId int64) {
 	user := User{}
 	u.db.Where("name=?", name).First(&user)
 	return user.Id
@@ -54,7 +54,7 @@ func (u *userMan) AddUser(user *User) error {
 	return u.db.Create(user).Error
 }
 
-func (u *userMan) QueryUserInfoByUserId(userId int64, user *User) error {
+func (u *userMan) QueryUserByUserId(userId int64, user *User) error {
 	if user == nil {
 		return errors.New("AddUser user空指针")
 	}
