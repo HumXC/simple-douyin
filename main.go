@@ -54,7 +54,7 @@ func Douyin(c config.Douyin, storage douyin.StorageClient) *gin.Engine {
 	if err != nil {
 		panic(err)
 	}
-	_ = service.NewDouyin(engin, db, storage)
+	_ = service.NewDouyin(engin, c, db, storage)
 	return engin
 }
 

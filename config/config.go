@@ -14,6 +14,8 @@ type Douyin struct {
 	ServeAddr string `yaml:"serve-addr"`
 	SQL       SQL    `yaml:"sql"`
 	Redis     Redis  `yaml:"redis"`
+	// feed 流一次推送的视频个数，最大 30
+	FeedNum int `yaml:"feed-num"`
 }
 
 type SQL struct {
