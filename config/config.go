@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -19,7 +20,9 @@ type Douyin struct {
 }
 
 type SQL struct {
-	DSN string `yaml:"dsn"`
+	// 数据库驱动类型，只支持 mysql 和 sqlite
+	Type string `yaml:"type"`
+	DSN  string `yaml:"dsn"`
 }
 type Redis struct {
 	Addr     string `yaml:"addr"`
@@ -29,6 +32,23 @@ type Redis struct {
 type Storage struct {
 	DataDir   string `yaml:"data-dir"`
 	ServeAddr string `yaml:"serve-addr"`
+}
+
+// 默认配置
+func defaultConfig() *Config {
+	return &Config{
+		Douyin: Douyin{
+			SQL: SQL{
+				Type: "sqlite",
+				DSN:  "data.db",
+			},
+			FeedNum: 1,
+		},
+		Storage: Storage{
+			DataDir:   "Data",
+			ServeAddr: "由于要拼接 URL, 所以此处不能写 ':port', 要写确切的 'ip:port'",
+		},
+	}
 }
 
 // 从 fileName 获取配置
@@ -41,27 +61,31 @@ func Get(filName string) (*Config, error) {
 		return nil, err
 	}
 	err = yaml.Unmarshal(yamlFile, config)
+	if err != nil {
+		return nil, err
+	}
+	if err := verify(config); err != nil {
+		return nil, err
+	}
 	return config, err
 }
 
 // 创建一个新文件，初始化一个空的配置
 func New(fileName string) error {
 	// 设置默认值
-	config := &Config{
-		Douyin: Douyin{
-			SQL: SQL{
-				DSN: "./data.db",
-			},
-		},
-		Storage: Storage{
-			DataDir:   "./Data",
-			ServeAddr: "由于要拼接 URL, 所以此处不能写 ':port', 要写确切的 'ip:port'",
-		},
-	}
+	config := defaultConfig()
 	out, err := yaml.Marshal(config)
 	if err != nil {
 		return err
 	}
 	err = os.WriteFile(fileName, out, 0755)
 	return err
+}
+
+func verify(c *Config) error {
+	sqlType := c.Douyin.SQL.Type
+	if !(sqlType == "sqlite" || sqlType == "mysql") {
+		return errors.New("配置验证失败: Douyin.SQL.Type 只能为 sqlite 和 mysql, 而不是 \"" + sqlType + "\"")
+	}
+	return nil
 }

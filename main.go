@@ -50,7 +50,7 @@ func Douyin(c config.Douyin, storage douyin.StorageClient) *gin.Engine {
 		Password: c.Redis.Password,
 		DB:       c.Redis.DB,
 	})
-	db, err := model.NewDouyinDB(c.SQL.DSN, rdb)
+	db, err := model.NewDouyinDB(c.SQL.Type, c.SQL.DSN, rdb)
 	if err != nil {
 		panic(err)
 	}

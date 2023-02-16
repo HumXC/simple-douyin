@@ -9,7 +9,7 @@ import (
 
 func TestFavorite(t *testing.T) {
 	// FIXME 传入 Redis 实例
-	douyinDB, err := NewDouyinDB(path.Join("douyin.db"), nil)
+	douyinDB, err := NewDouyinDB("sqlite", path.Join("douyin.db"), nil)
 	var c *gin.Context
 	if err != nil {
 		t.Fatal(err)

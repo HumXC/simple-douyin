@@ -15,7 +15,7 @@ import (
  **/
 
 func TestComment(t *testing.T) {
-	douyinDB, err := model.NewDouyinDB(path.Join(TEST_DIR, "douyin.db"), nil)
+	douyinDB, err := model.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
