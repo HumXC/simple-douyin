@@ -4,8 +4,14 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/HumXC/simple-douyin/model"
 	"github.com/gin-gonic/gin"
 )
+
+type FollowListResponse struct {
+	Response
+	UserList []User `json:"user_list"`
+} 
 
 func (h *Handler) RelationAction(c *gin.Context) {
 	inputId, ok := c.Get("user_id")
@@ -66,5 +72,155 @@ func (h *Handler) RelationAction(c *gin.Context) {
 			StatusMsg:  "取关成功",
 		})
 	}
+}
+
+func (h *Handler) FollowList(c *gin.Context) {
+	userMan := h.DB.User
+
+	inputId, ok := c.Get("user_id")
+	if !ok {
+		CommonResponseError(c, "user_id解析失败")
+		return
+	}
+	userId := inputId.(int64)
+
+	//用户不存在
+	if !userMan.IsExistWithId(userId) {
+		CommonResponseError(c, "用户不存在")
+		return
+	}
+	//在数据库查询关注的用户信息
+	userList, err := h.follows(userId)
+	if err != nil {
+		CommonResponseError(c, err.Error())
+		return
+	}
+
+	c.JSON(0, FollowListResponse{
+		Response: Response{
+			StatusCode: 0,
+			StatusMsg: "OK",
+		},
+		UserList: userList,
+	})
+}
+
+func (h *Handler) FollowerList(c *gin.Context) {
+	userMan := h.DB.User
+
+	inputId, ok := c.Get("user_id")
+	if !ok {
+		CommonResponseError(c, "user_id解析失败")
+		return
+	}
+	userId := inputId.(int64)
+
+	//用户不存在
+	if !userMan.IsExistWithId(userId) {
+		CommonResponseError(c, "用户不存在")
+		return
+	}
+	//在数据库查询粉丝信息
+	userList, err := h.followers(userId)
+	if err != nil {
+		CommonResponseError(c, err.Error())
+		return
+	}
+
+	c.JSON(0, FollowListResponse{
+		Response: Response{
+			StatusCode: 0,
+			StatusMsg: "OK",
+		},
+		UserList: userList,
+	})
+}
+
+func (h *Handler) FriendList(c *gin.Context) {
+	userMan := h.DB.User
+
+	inputId, ok := c.Get("user_id")
+	if !ok {
+		CommonResponseError(c, "user_id解析失败")
+		return
+	}
+	userId := inputId.(int64)
+	//用户不存在
+	if !userMan.IsExistWithId(userId) {
+		CommonResponseError(c, "用户不存在")
+		return
+	}
+	//在数据库查询朋友信息
+	userList, err := h.friends(userId)
+	if err != nil {
+		CommonResponseError(c, err.Error())
+		return
+	}
+
+	c.JSON(0, FollowListResponse{
+		Response: Response{
+			StatusCode: 0,
+			StatusMsg: "OK",
+		},
+		UserList: userList,
+	})
+
 
 }
+
+func (h *Handler) follows(id int64) ([]User, error) {
+	follows :=[]model.User{}
+	if err := h.DB.User.QueryFollowsById(id, &follows); err != nil {
+		return nil, err
+	}
+	UserList := []User{}
+	for _, v := range follows {
+		follow := User{
+			Id: v.Id,
+			Name: v.Name,
+			FollowCount: v.FollowCount,
+			FollowerCount: v.FollowerCount,
+			IsFollow: true,
+		} 
+		UserList = append(UserList, follow)
+	}
+	return UserList, nil
+}
+
+func (h *Handler) followers(id int64) ([]User, error) {
+	followers :=[]model.User{}
+	if err := h.DB.User.QueryFollowersById(id, &followers); err != nil {
+		return nil, err
+	}
+	UserList := []User{}
+	for _, v := range followers {
+		follower := User{
+			Id: v.Id,
+			Name: v.Name,
+			FollowCount: v.FollowCount,
+			FollowerCount: v.FollowerCount,
+		} 
+		UserList = append(UserList, follower)
+	}
+	return UserList, nil
+}
+
+func (h *Handler) friends(id int64) ([]User, error) {
+	friends :=[]model.User{}
+	if err := h.DB.User.QueryFriendsById(id, &friends); err != nil {
+		return nil, err
+	}
+	UserList := []User{}
+	for _, v := range friends {
+		follower := User{
+			Id: v.Id,
+			Name: v.Name,
+			FollowCount: v.FollowCount,
+			FollowerCount: v.FollowerCount,
+		} 
+		UserList = append(UserList, follower)
+	}
+	return UserList, nil
+}
+
+

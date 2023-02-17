@@ -32,7 +32,10 @@ func NewDouyin(g *gin.Engine, conf config.Douyin, db *model.DouyinDB, storageCli
 
 	relation := douyin.Group("relation")
 	relation.POST("action/", middlewares.JWTMiddleWare(), handler.RelationAction)
-
+	relation.GET("/follow/list/", middlewares.AuthUserCheck(), handler.FollowList)
+	relation.GET("/follower/list/", middlewares.AuthUserCheck(), handler.FollowerList)
+	relation.GET("/friend/list/", middlewares.AuthUserCheck(), handler.FriendList)
+	
 	return &DouYin{
 		engine: g,
 	}
