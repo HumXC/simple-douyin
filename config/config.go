@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"os"
+	"strconv"
 
 	"gopkg.in/yaml.v3"
 )
@@ -17,6 +18,8 @@ type Douyin struct {
 	Redis     Redis  `yaml:"redis"`
 	// feed 流一次推送的视频个数，最大 30
 	FeedNum int `yaml:"feed-num"`
+	// 视频屠夫最大同时压缩视频的数量
+	VideoButCherMaxJob int `yaml:"video-butcher-max-job"`
 }
 
 type SQL struct {
@@ -42,7 +45,8 @@ func defaultConfig() *Config {
 				Type: "sqlite",
 				DSN:  "data.db",
 			},
-			FeedNum: 1,
+			FeedNum:            1,
+			VideoButCherMaxJob: 2,
 		},
 		Storage: Storage{
 			DataDir:   "Data",
@@ -86,6 +90,10 @@ func verify(c *Config) error {
 	sqlType := c.Douyin.SQL.Type
 	if !(sqlType == "sqlite" || sqlType == "mysql") {
 		return errors.New("配置验证失败: Douyin.SQL.Type 只能为 sqlite 和 mysql, 而不是 \"" + sqlType + "\"")
+	}
+	if c.Douyin.VideoButCherMaxJob < 1 {
+		return errors.New("配置验证失败: Douyin.Douyin.VideoButCherMaxJob 必须大于 1, 而不是 \"" +
+			strconv.Itoa(c.Douyin.VideoButCherMaxJob) + "\"")
 	}
 	return nil
 }

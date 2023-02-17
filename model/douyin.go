@@ -16,6 +16,7 @@ type DouyinDB struct {
 	Video    *videoMan
 	ThumbsUp *thumbsUpMan
 	Comment  *commentMan
+	VideoJob *VideoJobMan
 }
 
 // 初始化一个用于 douyin 业务的数据库，只支持 sqlite，fileName 是数据库文件的文件名
@@ -41,7 +42,13 @@ func NewDouyinDB(dbType string, dsn string, rdb *redis.Client) (*DouyinDB, error
 		return nil, errors.New("不支持的数据库类型: " + dbType)
 	}
 
-	db.AutoMigrate(&User{}, &Video{}, &Comment{}, &ThumbsUp{})
+	db.AutoMigrate(
+		&User{},
+		&Video{},
+		&Comment{},
+		&ThumbsUp{},
+		&VideoJob{})
+
 	return &DouyinDB{
 		User:  &userMan{db: db},
 		Video: &videoMan{db: db},
@@ -49,5 +56,8 @@ func NewDouyinDB(dbType string, dsn string, rdb *redis.Client) (*DouyinDB, error
 			db:  db,
 			rdb: rdb},
 		Comment: &commentMan{db: db},
+		VideoJob: &VideoJobMan{
+			db: db,
+		},
 	}, nil
 }

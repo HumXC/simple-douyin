@@ -30,6 +30,9 @@ type StorageOption struct {
 // 如果 dir="videos", 那么上传的文件就会保存在 [DataDir]/videos 目录
 func (s *Storage) Upload(file, dir string) (string, error) {
 	// 创建文件夹
+	makeErr := func(err error) error {
+		return fmt.Errorf("上传文件失败 [%s] 到 [%s]: %w", file, dir, err)
+	}
 	fullDir := path.Join(s.DataDir, dir)
 	_, err := os.Stat(fullDir)
 	if err != nil || os.IsNotExist(err) {
@@ -37,19 +40,19 @@ func (s *Storage) Upload(file, dir string) (string, error) {
 	}
 	f, err := os.CreateTemp(s.DataDir, "upload_video")
 	if err != nil {
-		return "", fmt.Errorf("上传文件失败: %w", err)
+		return "", makeErr(err)
 	}
 	defer f.Close()
 	defer os.Remove(f.Name())
 	b := bytes.Buffer{}
 	src, err := os.Open(file)
 	if err != nil {
-		return "", fmt.Errorf("上传文件失败: %w", err)
+		return "", makeErr(err)
 	}
 	defer src.Close()
 	_, err = b.ReadFrom(src)
 	if err != nil {
-		return "", fmt.Errorf("上传文件失败: %w", err)
+		return "", makeErr(err)
 	}
 	sum := md5.Sum(b.Bytes())
 	hashStr := hex.EncodeToString(sum[:])
@@ -62,12 +65,12 @@ func (s *Storage) Upload(file, dir string) (string, error) {
 	_, err = b.WriteTo(f)
 	if err != nil {
 		f.Close()
-		return "", fmt.Errorf("上传文件失败: %w", err)
+		return "", makeErr(err)
 	}
 	f.Close()
 	err = os.Rename(f.Name(), fileName)
 	if err != nil {
-		return "", fmt.Errorf("上传文件失败: %w", err)
+		return "", makeErr(err)
 	}
 	return hashStr, nil
 }
