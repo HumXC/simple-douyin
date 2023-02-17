@@ -109,9 +109,8 @@ func (u *userMan) QueryFollowersById(userId int64, users *[]User) error {
 }
 
 func (u *userMan) QueryFriendsById(userId int64, users *[]User) error {
-	return nil
-
-		//select a.follow_id from relation as a join on relation b on a.user_id=b.follow_id and a.follow_id=b.user_id
+	subQuery := u.db.Raw("select a.follow_id from relations as a join relations b on a.user_id=b.follow_id and a.follow_id=b.user_id and a.user_id=?", userId)
+	return u.db.Model(&User{}).Where("id IN (?)", subQuery).Find(users).Error
 }
 
 func PwdVerify(hashPassword, password string) error {
