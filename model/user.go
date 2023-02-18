@@ -13,6 +13,8 @@ type User struct {
 	Password       string
 	TotalFavorited int64
 	FavoriteCount  int64
+	Avatar         string
+	Background     string
 	Follows        []User `gorm:"many2many:relations"`
 }
 

@@ -20,6 +20,9 @@ type Douyin struct {
 	FeedNum int `yaml:"feed-num"`
 	// 视频屠夫最大同时压缩视频的数量
 	VideoButCherMaxJob int `yaml:"video-butcher-max-job"`
+	// 头像和背景
+	Avatars     []string `yaml:"avatars"`
+	Backgrounds []string `yaml:"backgrounds"`
 }
 
 type SQL struct {

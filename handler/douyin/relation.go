@@ -169,6 +169,8 @@ func (h *Handler) friends(id int64) ([]User, error) {
 			FollowCount:   h.DB.User.CountFollow(v.Id),
 			FollowerCount: h.DB.User.CountFollower(v.Id),
 			IsFollow:      true,
+			Avatar:        h.StorageClient.GetURL("avatars", v.Avatar),
+			Background:    h.StorageClient.GetURL("backgrounds", v.Background),
 		}
 		UserList = append(UserList, follower)
 	}

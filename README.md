@@ -39,6 +39,17 @@ douyin:
     # 视频屠夫是进行视频压缩和获取封面的单元，见 videos.Butcher
     # Butcher 是多协程工作的，该值是同时进行视频处理的最大协程数量
     video-butcher-max-job: 16
+    # 头像和背景的设置，在注册用户时会从数组里随机选择一个文件
+    # 在访问时，会分别请求 /storage/avatars/:file 和 /storage/backgrounds/:file
+    # 所以在这里设置后，在 storage 对应的文件夹里要创建对应的文件，否则无法访问
+    avatars:
+        - 1.jpg
+        - 2.jpg
+        - 3.jpg
+    backgrounds:
+        - 1.jpg
+        - 2.jpg
+        - 3.jpg
 # 这是存储服务，只用于存储文件
 storage:
     # 存储数据的根文件夹

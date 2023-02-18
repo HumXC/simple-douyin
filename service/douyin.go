@@ -1,9 +1,6 @@
 package service
 
 import (
-	"fmt"
-	"time"
-
 	"github.com/HumXC/simple-douyin/config"
 	"github.com/HumXC/simple-douyin/handler/douyin"
 	"github.com/HumXC/simple-douyin/middlewares"
@@ -19,33 +16,15 @@ func NewDouyin(g *gin.Engine, conf config.Douyin, db *model.DouyinDB, storageCli
 	handler := douyin.Handler{
 		DB:            db,
 		StorageClient: storageClient,
-		// 服务启动后开始异步压缩未处理的视频
-		VideoButcher: videos.NewButcher(db.VideoJob, conf.VideoButCherMaxJob, func(job videos.Job, video, cover string, err error) (delete bool) {
-			if err != nil {
-				fmt.Println("视频任务失败: " + err.Error())
-				return false
-			}
-			vHash, err := storageClient.Upload(video, "videos")
-			if err != nil {
-				fmt.Println("视频任务失败: " + err.Error())
-				return false
-			}
-			cHash, err := storageClient.Upload(cover, "covers")
-			if err != nil {
-				fmt.Println("视频任务失败: " + err.Error())
-				return false
-			}
-			// 将视频信息写入数据库
-			_ = db.Video.Put(model.Video{
-				Video:  vHash,
-				Cover:  cHash,
-				Title:  job.Title,
-				UserID: job.UserID,
-				Time:   time.Now(),
-			})
-			return true
-		}),
+		Avatars:       conf.Avatars,
+		Backgrounds:   conf.Backgrounds,
 	}
+	handler.VideoButcher = videos.NewButcher(
+		db.VideoJob,
+		conf.VideoButCherMaxJob,
+		douyin.VideoButcherFinishFunc(&handler),
+	)
+
 	douyin := g.Group("douyin")
 	douyin.Use(middlewares.JWTMiddleWare())
 	douyin.GET("feed", handler.Feed(conf.FeedNum))

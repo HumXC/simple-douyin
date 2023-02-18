@@ -115,8 +115,10 @@ func (h *Handler) UserRegister(c *gin.Context) {
 	}
 	//保存到数据库
 	user := model.User{
-		Name:     username,
-		Password: password,
+		Name:       username,
+		Password:   password,
+		Avatar:     helper.PickOne(h.Avatars),
+		Background: helper.PickOne(h.Backgrounds),
 	}
 	if err := userMan.AddUser(&user); err != nil {
 		resp.Status(StatusOtherError)

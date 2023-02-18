@@ -41,6 +41,8 @@ type Handler struct {
 	DB            *model.DouyinDB
 	StorageClient StorageClient
 	VideoButcher  *videos.Butcher
+	Avatars       []string
+	Backgrounds   []string
 }
 
 type Response struct {
@@ -91,6 +93,8 @@ type User struct {
 	WorkCount      int64  `json:"work_count,omitempty"`      // 作品数量
 	FavoriteCount  int64  `json:"favorite_count,omitempty"`  // 点赞数
 	IsFollow       bool   `json:"is_follow,omitempty"`
+	Avatar         string `json:"avatar,omitempty"`
+	Background     string `json:"background_image,omitempty"`
 }
 
 type Message struct {
@@ -118,6 +122,8 @@ func (h *Handler) ConvertUser(u model.User, isFollow bool) User {
 		FollowerCount: h.DB.User.CountFollower(u.Id),
 		IsFollow:      isFollow,
 		Name:          u.Name,
+		Avatar:        h.StorageClient.GetURL("avatars", u.Avatar),
+		Background:    h.StorageClient.GetURL("backgrounds", u.Background),
 	}
 }
 

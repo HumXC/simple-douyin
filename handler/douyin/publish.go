@@ -7,8 +7,10 @@ import (
 	"os"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/HumXC/simple-douyin/model"
+	"github.com/HumXC/simple-douyin/videos"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,6 +19,35 @@ type StorageClient interface {
 	// TODO 将 fileName 改成 io.Reader 实现
 	Upload(fileName, dir string) (string, error)
 	GetURL(dir, file string) string
+}
+
+// 服务启动后开始异步压缩未处理的视频
+func VideoButcherFinishFunc(h *Handler) videos.ButcherFinidhFunc {
+	return func(job videos.Job, video, cover string, err error) (delete bool) {
+		if err != nil {
+			fmt.Println("视频任务失败: " + err.Error())
+			return false
+		}
+		vHash, err := h.StorageClient.Upload(video, "videos")
+		if err != nil {
+			fmt.Println("视频任务失败: " + err.Error())
+			return false
+		}
+		cHash, err := h.StorageClient.Upload(cover, "covers")
+		if err != nil {
+			fmt.Println("视频任务失败: " + err.Error())
+			return false
+		}
+		// 将视频信息写入数据库
+		_ = h.DB.Video.Put(model.Video{
+			Video:  vHash,
+			Cover:  cHash,
+			Title:  job.Title,
+			UserID: job.UserID,
+			Time:   time.Now(),
+		})
+		return true
+	}
 }
 
 var buf = sync.Pool{
