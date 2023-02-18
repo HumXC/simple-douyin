@@ -11,8 +11,6 @@ type User struct {
 	Id             int64 `gorm:"primarykey"`
 	Name           string
 	Password       string
-	FollowCount    int64
-	FollowerCount  int64
 	TotalFavorited int64
 	FavoriteCount  int64
 	Follows        []User `gorm:"many2many:relations"`
@@ -20,6 +18,26 @@ type User struct {
 
 type userMan struct {
 	db *gorm.DB
+}
+
+// 返回粉丝数量
+func (u *userMan) CountFollower(userID int64) int64 {
+	if userID == 0 {
+		return 0
+	}
+	var count int64 = 0
+	u.db.Table("relations").Where("follow_id=?", userID).Select("follow_id").Count(&count)
+	return count
+}
+
+// 返回关注数量
+func (u *userMan) CountFollow(userID int64) int64 {
+	if userID == 0 {
+		return 0
+	}
+	return u.db.Model(&User{
+		Id: userID,
+	}).Select("id").Association("Follows").Count()
 }
 
 // 返回 user1 是否关注了 user2
@@ -78,13 +96,8 @@ func (u *userMan) QueryById(userId int64, user *User) error {
 }
 
 func (u *userMan) Follow(userId, followId int64) error {
+	// FIXME
 	return u.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Exec("UPDATE users SET follow_count=follow_count+1 WHERE id = ?", userId).Error; err != nil {
-			return err
-		}
-		if err := tx.Exec("UPDATE users SET follower_count=follower_count+1 WHERE id = ?", followId).Error; err != nil {
-			return err
-		}
 		if err := tx.Exec("INSERT INTO `relations` (`user_id`,`follow_id`) VALUES (?,?)", userId, followId).Error; err != nil {
 			return err
 		}
@@ -93,13 +106,8 @@ func (u *userMan) Follow(userId, followId int64) error {
 }
 
 func (u *userMan) CancelFollow(userId, followId int64) error {
+	// FIXME
 	return u.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Exec("UPDATE users SET follow_count=follow_count-1 WHERE id = ? AND follow_count>0", userId).Error; err != nil {
-			return err
-		}
-		if err := tx.Exec("UPDATE users SET follower_count=follower_count-1 WHERE id = ? AND follower_count>0", followId).Error; err != nil {
-			return err
-		}
 		if err := tx.Exec("DELETE FROM `relations` WHERE user_id=? AND follow_id=?", userId, followId).Error; err != nil {
 			return err
 		}
@@ -107,6 +115,27 @@ func (u *userMan) CancelFollow(userId, followId int64) error {
 	})
 }
 
+// 获取关注者用户
+func (u *userMan) QueryFollows(userID int64, users *[]User) {
+	if userID == 0 {
+		return
+	}
+	u.db.Model(&User{
+		Id: userID,
+	}).Omit("password").Association("Follows").Find(&users)
+}
+
+// 获取粉丝用户
+func (u *userMan) QueryFollowers(userID int64, users *[]User) {
+	if userID == 0 {
+		return
+	}
+	// 能用就行
+	subQuery := u.db.Table("relations").Where("follow_id=?", userID).Select("user_id")
+	u.db.Model(&User{}).Omit("password").Where("id IN (?)", subQuery).Find(&users)
+}
+
+// Deprecated: 使用 QueryFollows
 func (u *userMan) QueryFollowsById(userId int64, users *[]User) error {
 	return u.db.Table("users as u").
 		Select([]string{"id", "name", "follow_count", "follower_count"}).
@@ -114,6 +143,7 @@ func (u *userMan) QueryFollowsById(userId int64, users *[]User) error {
 		Where("r.user_id=?", userId).Find(users).Error
 }
 
+// Deprecated: 使用 QueryFollowers
 func (u *userMan) QueryFollowersById(userId int64, users *[]User) error {
 	return u.db.Table("users as u").
 		Select([]string{"id", "name", "follow_count", "follower_count"}).
