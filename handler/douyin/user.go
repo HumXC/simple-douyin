@@ -20,11 +20,13 @@ func (h *Handler) User(c *gin.Context) {
 		CommonResponseError(c, "user_id解析失败")
 		return
 	}
-	user, err := h.user(userID)
+	u := model.User{}
+	err := h.DB.User.QueryById(userID, &u)
 	if err != nil {
 		CommonResponseError(c, err.Error())
 		return
 	}
+	user := h.ConvertUser(u)
 
 	c.JSON(http.StatusOK, UserInfoResponse{
 		Response: Response{
@@ -33,22 +35,6 @@ func (h *Handler) User(c *gin.Context) {
 		},
 		User: user,
 	})
-}
-
-// 通过 User ID 从数据库获取一个 User 实例
-func (h *Handler) user(id int64) (User, error) {
-	u := model.User{}
-	err := h.DB.User.QueryById(id, &u)
-	if err != nil {
-		return User{}, err
-	}
-	return User{
-		Id:            u.Id,
-		FollowCount:   u.FollowCount,
-		FollowerCount: u.FollowerCount,
-		IsFollow:      false,
-		Name:          u.Name,
-	}, nil
 }
 
 func (h *Handler) UserLogin(c *gin.Context) {

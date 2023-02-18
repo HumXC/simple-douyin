@@ -83,11 +83,14 @@ type Comment struct {
 }
 
 type User struct {
-	Id            int64  `json:"id,omitempty"`
-	Name          string `json:"name,omitempty"`
-	FollowCount   int64  `json:"follow_count,omitempty"`
-	FollowerCount int64  `json:"follower_count,omitempty"`
-	IsFollow      bool   `json:"is_follow,omitempty"`
+	Id             int64  `json:"id,omitempty"`
+	Name           string `json:"name,omitempty"`
+	FollowCount    int64  `json:"follow_count,omitempty"`    // 关注数
+	FollowerCount  int64  `json:"follower_count,omitempty"`  // 粉丝数
+	TotalFavorited int64  `json:"total_favorited,omitempty"` // 获赞数
+	WorkCount      int64  `json:"work_count,omitempty"`      // 作品数量
+	FavoriteCount  int64  `json:"favorite_count,omitempty"`  // 点赞数
+	IsFollow       bool   `json:"is_follow,omitempty"`
 }
 
 type Message struct {
@@ -105,4 +108,22 @@ type MessageSendEvent struct {
 type MessagePushEvent struct {
 	FromUserId int64  `json:"user_id,omitempty"`
 	MsgContent string `json:"msg_content,omitempty"`
+}
+
+func (h *Handler) ConvertUser(u model.User) User {
+	return User{
+		Id:            u.Id,
+		FollowCount:   h.DB.User.CountFollow(u.Id),
+		FollowerCount: h.DB.User.CountFollower(u.Id),
+		IsFollow:      false,
+		Name:          u.Name,
+	}
+}
+
+func (h *Handler) ConvertUsers(us *[]model.User) *[]User {
+	result := make([]User, len(*us), len(*us))
+	for i := 0; i < len(*us); i++ {
+		result[i] = h.ConvertUser((*us)[i])
+	}
+	return &result
 }
