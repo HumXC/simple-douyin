@@ -8,6 +8,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/HumXC/simple-douyin/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -75,15 +76,17 @@ func (h *Handler) PublishList(c *gin.Context) {
 		c.JSON(http.StatusOK, resp)
 	}()
 	userID := c.GetInt64("user_id")
-	user, err := h.user(userID)
+	u := model.User{}
+	err := h.DB.User.QueryById(userID, &u)
 	if err != nil {
 		resp.Status(StatusOtherError)
 		panic(fmt.Errorf("无法获取用户 [%d] : %w", userID, err))
 	}
-	if user.Id == 0 {
+	if u.Id == 0 {
 		resp.Status(StatusUserNotFound)
 		return
 	}
+	user := h.ConvertUser(u)
 
 	videos, err := h.DB.Video.GetByUser(userID)
 	if err != nil {
