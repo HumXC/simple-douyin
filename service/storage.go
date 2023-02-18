@@ -16,7 +16,6 @@ import (
 // 该文件实现了一个文件服务器, 用于给用户存储/发送视频
 
 type Storage struct {
-	engine    *gin.Engine
 	DataDir   string
 	hashToURL func(dir, hash string) string
 }
@@ -80,7 +79,6 @@ func (s *Storage) GetURLWithHash(dir, hash string) string {
 }
 func NewStorage(g *gin.Engine, conf config.Storage) *Storage {
 	s := &Storage{
-		engine:  g,
 		DataDir: conf.DataDir,
 	}
 	_, err := os.Stat(conf.DataDir)
