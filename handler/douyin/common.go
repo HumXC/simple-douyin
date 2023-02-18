@@ -19,6 +19,7 @@ const (
 	StatusUserNotFound
 	StatusUploadNotAVideo
 	StatusFailedToFetchVideo
+	StatusNeedLogin
 	StatusOtherError = -1
 )
 
@@ -32,7 +33,7 @@ func init() {
 	StatusMsgs[StatusUserNotFound] = "用户不存在"
 	StatusMsgs[StatusUploadNotAVideo] = "上传的文件不是视频"
 	StatusMsgs[StatusFailedToFetchVideo] = "获取视频列表失败"
-
+	StatusMsgs[StatusNeedLogin] = "需要登录"
 }
 
 // 所有 gin.HandlerFunc 都应该绑定到 Handler 上
