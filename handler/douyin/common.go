@@ -111,7 +111,6 @@ type MessagePushEvent struct {
 }
 
 // 转换数据库 model.User 到 douyin.User
-// 该转换函数不会获取正确的 IsFollow 字段，需要额外获取
 func (h *Handler) ConvertUser(u model.User, isFollow bool) User {
 	return User{
 		Id:            u.Id,
