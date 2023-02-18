@@ -40,8 +40,7 @@ func (h *Handler) Feed(num int) func(*gin.Context) {
 				resp.Status(StatusOtherError)
 				return
 			}
-			user := h.ConvertUser(u)
-			user.IsFollow = h.DB.User.IsFollow(userID, user.Id)
+			user := h.ConvertUser(u, h.DB.User.IsFollow(userID, u.Id))
 			resp.VideoList[i].Author = user
 			resp.VideoList[i].CommentCount = videos[i].CommentCount
 			resp.VideoList[i].FavoriteCount = videos[i].FavoriteCount

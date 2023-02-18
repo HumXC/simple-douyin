@@ -11,7 +11,7 @@ import (
 type FollowListResponse struct {
 	Response
 	UserList []User `json:"user_list"`
-} 
+}
 
 func (h *Handler) RelationAction(c *gin.Context) {
 	inputId, ok := c.Get("user_id")
@@ -90,18 +90,14 @@ func (h *Handler) FollowList(c *gin.Context) {
 		return
 	}
 	//在数据库查询关注的用户信息
-	userList, err := h.follows(userId)
-	if err != nil {
-		CommonResponseError(c, err.Error())
-		return
-	}
-
+	follows := userMan.QueryFollows(userId)
+	userList := h.ConvertUsers(follows, true)
 	c.JSON(0, FollowListResponse{
 		Response: Response{
 			StatusCode: 0,
-			StatusMsg: "OK",
+			StatusMsg:  "OK",
 		},
-		UserList: userList,
+		UserList: *userList,
 	})
 }
 
@@ -121,18 +117,14 @@ func (h *Handler) FollowerList(c *gin.Context) {
 		return
 	}
 	//在数据库查询粉丝信息
-	userList, err := h.followers(userId)
-	if err != nil {
-		CommonResponseError(c, err.Error())
-		return
-	}
-
+	followers := userMan.QueryFollowers(userId)
+	userList := h.ConvertUsers(followers, true)
 	c.JSON(0, FollowListResponse{
 		Response: Response{
 			StatusCode: 0,
-			StatusMsg: "OK",
+			StatusMsg:  "OK",
 		},
-		UserList: userList,
+		UserList: *userList,
 	})
 }
 
@@ -160,67 +152,28 @@ func (h *Handler) FriendList(c *gin.Context) {
 	c.JSON(0, FollowListResponse{
 		Response: Response{
 			StatusCode: 0,
-			StatusMsg: "OK",
+			StatusMsg:  "OK",
 		},
 		UserList: userList,
 	})
 
-
-}
-
-func (h *Handler) follows(id int64) ([]User, error) {
-	follows :=[]model.User{}
-	if err := h.DB.User.QueryFollowsById(id, &follows); err != nil {
-		return nil, err
-	}
-	UserList := []User{}
-	for _, v := range follows {
-		follow := User{
-			Id: v.Id,
-			Name: v.Name,
-			FollowCount: v.FollowCount,
-			FollowerCount: v.FollowerCount,
-			IsFollow: true,
-		} 
-		UserList = append(UserList, follow)
-	}
-	return UserList, nil
-}
-
-func (h *Handler) followers(id int64) ([]User, error) {
-	followers :=[]model.User{}
-	if err := h.DB.User.QueryFollowersById(id, &followers); err != nil {
-		return nil, err
-	}
-	UserList := []User{}
-	for _, v := range followers {
-		follower := User{
-			Id: v.Id,
-			Name: v.Name,
-			FollowCount: v.FollowCount,
-			FollowerCount: v.FollowerCount,
-		} 
-		UserList = append(UserList, follower)
-	}
-	return UserList, nil
 }
 
 func (h *Handler) friends(id int64) ([]User, error) {
-	friends :=[]model.User{}
+	friends := []model.User{}
 	if err := h.DB.User.QueryFriendsById(id, &friends); err != nil {
 		return nil, err
 	}
 	UserList := []User{}
 	for _, v := range friends {
 		follower := User{
-			Id: v.Id,
-			Name: v.Name,
-			FollowCount: v.FollowCount,
-			FollowerCount: v.FollowerCount,
-		} 
+			Id:            v.Id,
+			Name:          v.Name,
+			FollowCount:   h.DB.User.CountFollow(v.Id),
+			FollowerCount: h.DB.User.CountFollower(v.Id),
+			IsFollow:      true,
+		}
 		UserList = append(UserList, follower)
 	}
 	return UserList, nil
 }
-
-

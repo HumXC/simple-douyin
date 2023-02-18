@@ -26,7 +26,7 @@ func (h *Handler) User(c *gin.Context) {
 		CommonResponseError(c, err.Error())
 		return
 	}
-	user := h.ConvertUser(u)
+	user := h.ConvertUser(u, false)
 
 	c.JSON(http.StatusOK, UserInfoResponse{
 		Response: Response{

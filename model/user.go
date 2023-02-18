@@ -116,23 +116,27 @@ func (u *userMan) CancelFollow(userId, followId int64) error {
 }
 
 // 获取关注者用户
-func (u *userMan) QueryFollows(userID int64, users *[]User) {
+func (u *userMan) QueryFollows(userID int64) *[]User {
+	result := make([]User, 0)
 	if userID == 0 {
-		return
+		return &result
 	}
 	u.db.Model(&User{
 		Id: userID,
-	}).Omit("password").Association("Follows").Find(&users)
+	}).Omit("password").Association("Follows").Find(&result)
+	return &result
 }
 
 // 获取粉丝用户
-func (u *userMan) QueryFollowers(userID int64, users *[]User) {
+func (u *userMan) QueryFollowers(userID int64) *[]User {
+	result := make([]User, 0)
 	if userID == 0 {
-		return
+		return &result
 	}
 	// 能用就行
 	subQuery := u.db.Table("relations").Where("follow_id=?", userID).Select("user_id")
-	u.db.Model(&User{}).Omit("password").Where("id IN (?)", subQuery).Find(&users)
+	u.db.Model(&User{}).Omit("password").Where("id IN (?)", subQuery).Find(&result)
+	return &result
 }
 
 // Deprecated: 使用 QueryFollows

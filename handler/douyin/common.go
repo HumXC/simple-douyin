@@ -110,7 +110,9 @@ type MessagePushEvent struct {
 	MsgContent string `json:"msg_content,omitempty"`
 }
 
-func (h *Handler) ConvertUser(u model.User) User {
+// 转换数据库 model.User 到 douyin.User
+// 该转换函数不会获取正确的 IsFollow 字段，需要额外获取
+func (h *Handler) ConvertUser(u model.User, isFollow bool) User {
 	return User{
 		Id:            u.Id,
 		FollowCount:   h.DB.User.CountFollow(u.Id),
@@ -120,10 +122,11 @@ func (h *Handler) ConvertUser(u model.User) User {
 	}
 }
 
-func (h *Handler) ConvertUsers(us *[]model.User) *[]User {
+// 转换数据库 model.User 到 douyin.User
+func (h *Handler) ConvertUsers(us *[]model.User, isFollow bool) *[]User {
 	result := make([]User, len(*us), len(*us))
 	for i := 0; i < len(*us); i++ {
-		result[i] = h.ConvertUser((*us)[i])
+		result[i] = h.ConvertUser((*us)[i], isFollow)
 	}
 	return &result
 }

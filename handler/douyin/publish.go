@@ -86,7 +86,7 @@ func (h *Handler) PublishList(c *gin.Context) {
 		resp.Status(StatusUserNotFound)
 		return
 	}
-	user := h.ConvertUser(u)
+	user := h.ConvertUser(u, false)
 
 	videos, err := h.DB.Video.GetByUser(userID)
 	if err != nil {

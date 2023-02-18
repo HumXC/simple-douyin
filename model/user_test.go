@@ -70,8 +70,7 @@ func TestCountFollowAndCountFollower(t *testing.T) {
 			{Id: 2},
 			{Id: 3},
 		}
-		var got []model.User = make([]model.User, 0)
-		u.QueryFollows(1, &got)
+		got := *u.QueryFollows(1)
 		if len(got) == 0 {
 			t.Errorf("居然找不到关注者: want:  %v", want)
 			return
@@ -94,8 +93,8 @@ func TestCountFollowAndCountFollower(t *testing.T) {
 			{Id: 1},
 			{Id: 3},
 		}
-		var got []model.User = make([]model.User, 0)
-		u.QueryFollowers(2, &got)
+
+		got := *u.QueryFollowers(2)
 		if len(got) == 0 {
 			t.Errorf("居然找不到粉丝: want:  %v", want)
 			return

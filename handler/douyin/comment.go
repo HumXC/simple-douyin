@@ -68,16 +68,9 @@ func (h *Handler) CommentAction(c *gin.Context) {
 			return
 		}
 		//发布评论成功
-		var user model.User
-		userMan.QueryById(userId, &user)
-		userInfo := User{
-			Id:            user.Id,
-			Name:          user.Name,
-			FollowCount:   user.FollowCount,
-			FollowerCount: user.FollowerCount,
-			// FIXME 获取正确的 IsFollow
-			IsFollow: false,
-		}
+		var u model.User
+		_ = userMan.QueryById(userId, &u)
+		userInfo := h.ConvertUser(u, false)
 		commentData := Comment{
 			Id:         int64(comment.Model.ID),
 			User:       userInfo,
@@ -159,16 +152,9 @@ func (h *Handler) CommentList(c *gin.Context) {
 	commentList := make([]Comment, len(comments)) //定义切片大小
 	idx := 0
 	for _, comment := range comments {
-		var user model.User //每个评论的用户信息
-		userMan.QueryById(comment.UserID, &user)
-		userInfo := User{
-			Id:            user.Id,
-			Name:          user.Name,
-			FollowCount:   user.FollowCount,
-			FollowerCount: user.FollowerCount,
-			// FIXME 获取正确的 IsFollow
-			IsFollow: false,
-		}
+		var u model.User
+		_ = userMan.QueryById(comment.UserID, &u)
+		userInfo := h.ConvertUser(u, false)
 		commentData := Comment{
 			Id:         int64(comment.Model.ID),
 			User:       userInfo,
