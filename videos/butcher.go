@@ -84,6 +84,7 @@ func (b *Butcher) SAdd(input, title string, userID int64, work ButcherWorkFunc, 
 		ID:     id,
 		Src:    input,
 		Title:  title,
+		UserID: userID,
 		work:   work,
 		finish: finish,
 	})
