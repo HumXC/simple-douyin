@@ -117,7 +117,7 @@ func (h *Handler) ConvertUser(u model.User, isFollow bool) User {
 		Id:            u.Id,
 		FollowCount:   h.DB.User.CountFollow(u.Id),
 		FollowerCount: h.DB.User.CountFollower(u.Id),
-		IsFollow:      false,
+		IsFollow:      isFollow,
 		Name:          u.Name,
 	}
 }
