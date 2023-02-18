@@ -1,6 +1,7 @@
 package douyin
 
 import (
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -24,16 +25,8 @@ var buf = sync.Pool{
 }
 
 func (h *Handler) PublishAction(c *gin.Context) {
-	var httpStatusCode = http.StatusOK
-	resp := Response{
-		StatusMsg:  "投稿成功",
-		StatusCode: StatusOK,
-	}
-	defer func() {
-		c.JSON(httpStatusCode, resp)
-	}()
+	resp := BaseResponse()
 	userID := c.GetInt64("user_id")
-	// TODO: 日志
 	title := c.PostForm("title")
 	data, _, err := c.Request.FormFile("data")
 	if err != nil {
@@ -41,12 +34,14 @@ func (h *Handler) PublishAction(c *gin.Context) {
 		return
 	}
 	defer data.Close()
+	defer func() {
+		c.JSON(http.StatusOK, resp)
+	}()
 	// 保存文件到本地先，file 作为临时文件，最后要删除
 	file, err := os.CreateTemp("", "video")
 	if err != nil {
-		resp.StatusCode = StatusOtherError
-		resp.StatusMsg = "服务器错误"
-		return
+		resp.Status(StatusOtherError)
+		panic(fmt.Errorf("无法创建临时文件: %w", err))
 	}
 	defer file.Close()
 
@@ -60,8 +55,7 @@ func (h *Handler) PublishAction(c *gin.Context) {
 	buf.Put(b)
 	// 上传的文件不是视频
 	if !strings.HasPrefix(mimeType, "video") {
-		resp.StatusCode = StatusOtherError
-		resp.StatusMsg = "上传的文件不是视频"
+		resp.Status(StatusUploadNotAVideo)
 		return
 	}
 	// 走到这就已经返回 “发布成功了，其实还有额外的工作在 Butcher 进行”
@@ -74,35 +68,27 @@ func (h *Handler) PublishList(c *gin.Context) {
 		Response
 		VideoList []Video `json:"video_list"`
 	}
-	var httpStatusCode = http.StatusOK
 	resp := Resp{
-		Response: Response{
-			StatusMsg:  "成功",
-			StatusCode: StatusOK,
-		},
+		Response: BaseResponse(),
 	}
 	defer func() {
-		c.JSON(httpStatusCode, resp)
+		c.JSON(http.StatusOK, resp)
 	}()
 	userID := c.GetInt64("user_id")
 	user, err := h.user(userID)
 	if err != nil {
-		resp.StatusCode = StatusOtherError
-		resp.StatusMsg = "未知错误"
-		httpStatusCode = http.StatusInternalServerError
-		return
+		resp.Status(StatusOtherError)
+		panic(fmt.Errorf("无法获取用户 [%d] : %w", userID, err))
 	}
 	if user.Id == 0 {
-		resp.StatusCode = StatusUserNotFound
-		resp.StatusMsg = "用户不存在"
+		resp.Status(StatusUserNotFound)
 		return
 	}
 
 	videos, err := h.DB.Video.GetByUser(userID)
 	if err != nil {
-		httpStatusCode = http.StatusInternalServerError
-		resp.StatusCode = StatusOtherError
-		resp.StatusMsg = "无法获取视频"
+		resp.Status(StatusOtherError)
+		panic(fmt.Errorf("无法获取用户发布的视频 [%d] : %w", userID, err))
 	}
 	resp.VideoList = make([]Video, len(videos))
 	for i := 0; i < len(videos); i++ {

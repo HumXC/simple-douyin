@@ -7,18 +7,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var DemoVideos = []Video{
-	{
-		Id:            1,
-		Author:        User{},
-		PlayUrl:       "https://www.w3schools.com/html/movie.mp4",
-		CoverUrl:      "https://cdn.pixabay.com/photo/2016/03/27/18/10/bear-1283347_1280.jpg",
-		FavoriteCount: 0,
-		CommentCount:  0,
-		IsFavorite:    false,
-	},
-}
-
 func (h *Handler) Feed(num int) func(*gin.Context) {
 	return func(c *gin.Context) {
 		type Resp struct {
@@ -26,29 +14,20 @@ func (h *Handler) Feed(num int) func(*gin.Context) {
 			VideoList []Video `json:"video_list,omitempty"`
 			NextTime  int64   `json:"next_time,omitempty"`
 		}
-
-		var httpStatusCode = http.StatusOK
 		resp := Resp{
-			Response: Response{
-				StatusMsg:  "OK",
-				StatusCode: StatusOK,
-			},
+			Response: BaseResponse(),
 		}
 		defer func() {
-			c.JSON(httpStatusCode, resp)
+			c.JSON(http.StatusOK, resp)
 		}()
 		latestTime, err := strconv.ParseInt(c.Query("latest_time"), 10, 64)
 		if err != nil {
-			resp.StatusCode = StatusOtherError
-			resp.StatusMsg = "未知错误"
-			httpStatusCode = http.StatusInternalServerError
+			resp.Status(StatusOtherError)
 			return
 		}
 		videos, err := h.DB.Video.GetFeed(latestTime, num)
 		if err != nil {
-			resp.StatusCode = StatusOtherError
-			resp.StatusMsg = "未知错误"
-			httpStatusCode = http.StatusInternalServerError
+			resp.Status(StatusOtherError)
 			return
 		}
 
@@ -56,9 +35,7 @@ func (h *Handler) Feed(num int) func(*gin.Context) {
 		for i := 0; i < len(videos); i++ {
 			user, err := h.user(videos[i].UserID)
 			if err != nil {
-				resp.StatusCode = StatusOtherError
-				resp.StatusMsg = "未知错误"
-				httpStatusCode = http.StatusInternalServerError
+				resp.Status(StatusOtherError)
 				return
 			}
 			resp.VideoList[i].Author = user
@@ -74,5 +51,4 @@ func (h *Handler) Feed(num int) func(*gin.Context) {
 			resp.NextTime = videos[len(videos)-1].Time.Unix()
 		}
 	}
-
 }
