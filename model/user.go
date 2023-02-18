@@ -9,12 +9,12 @@ import (
 
 type User struct {
 	Id             int64 `gorm:"primarykey"`
-	Name           string  
-	Password       string  
-	FollowCount    int64   
-	FollowerCount  int64   
-	TotalFavorited int64   
-	FavoriteCount  int64   
+	Name           string
+	Password       string
+	FollowCount    int64
+	FollowerCount  int64
+	TotalFavorited int64
+	FavoriteCount  int64
 	Follows        []User `gorm:"many2many:relations"`
 }
 
@@ -22,6 +22,16 @@ type userMan struct {
 	db *gorm.DB
 }
 
+// 返回 user1 是否关注了 user2
+// 如果 user1 关注了 user2，返回 true
+func (u *userMan) IsFollow(user1, user2 int64) bool {
+	// TODO 是否可以引入 redis
+	id := 0
+	_ = u.db.Model(&User{
+		Id: user1,
+	}).Select("id").Where("id=?", user2).Association("Follows").Find(&id)
+	return id != 0
+}
 func (u *userMan) GetIdByName(name string) (userId int64) {
 	var id int64
 	u.db.Model(&User{}).Select("id").Where("name=?", name).Find(&id)
@@ -96,14 +106,14 @@ func (u *userMan) CancelFollow(userId, followId int64) error {
 
 func (u *userMan) QueryFollowsById(userId int64, users *[]User) error {
 	return u.db.Table("users as u").
-		Select([]string{"id","name","follow_count","follower_count"}).
+		Select([]string{"id", "name", "follow_count", "follower_count"}).
 		Joins("left join relations as r on u.id = r.follow_id").
 		Where("r.user_id=?", userId).Find(users).Error
 }
 
 func (u *userMan) QueryFollowersById(userId int64, users *[]User) error {
 	return u.db.Table("users as u").
-		Select([]string{"id","name","follow_count","follower_count"}).
+		Select([]string{"id", "name", "follow_count", "follower_count"}).
 		Joins("left join relations as r on u.id = r.user_id").
 		Where("r.follow_id=?", userId).Find(users).Error
 }
