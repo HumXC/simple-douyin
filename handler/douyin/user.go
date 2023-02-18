@@ -17,7 +17,7 @@ func (h *Handler) User(c *gin.Context) {
 	resp := Resp{
 		Response: BaseResponse(),
 	}
-	defer func ()  {
+	defer func() {
 		c.JSON(http.StatusOK, resp)
 	}()
 
@@ -45,8 +45,8 @@ func (h *Handler) UserLogin(c *gin.Context) {
 	resp := Resp{
 		Response: BaseResponse(),
 	}
-	defer func ()  {
-		c.JSON(http.StatusOK, resp)	
+	defer func() {
+		c.JSON(http.StatusOK, resp)
 	}()
 
 	userMan := h.DB.User
@@ -85,8 +85,8 @@ func (h *Handler) UserRegister(c *gin.Context) {
 	resp := Resp{
 		Response: BaseResponse(),
 	}
-	defer func ()  {
-		c.JSON(http.StatusOK, resp)	
+	defer func() {
+		c.JSON(http.StatusOK, resp)
 	}()
 
 	userMan := h.DB.User

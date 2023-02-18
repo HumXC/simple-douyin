@@ -10,8 +10,8 @@ import (
 
 func (h *Handler) RelationAction(c *gin.Context) {
 	resp := BaseResponse()
-	defer func ()  {
-		c.JSON(http.StatusOK, resp)	
+	defer func() {
+		c.JSON(http.StatusOK, resp)
 	}()
 
 	inputId, ok := c.Get("user_id")
@@ -74,17 +74,11 @@ func (h *Handler) FollowList(c *gin.Context) {
 	resp := Resp{
 		Response: BaseResponse(),
 	}
-	defer func ()  {
-		c.JSON(http.StatusOK, resp)	
+	defer func() {
+		c.JSON(http.StatusOK, resp)
 	}()
 
-	inputId, ok := c.Get("user_id")
-	if !ok {
-		resp.Status(StatusAuthFailed)
-		return
-	}
-	userId := inputId.(int64)
-
+	userId := c.GetInt64("user_id")
 	userMan := h.DB.User
 	//用户不存在
 	if !userMan.IsExistWithId(userId) {
@@ -93,7 +87,10 @@ func (h *Handler) FollowList(c *gin.Context) {
 	}
 	//在数据库查询关注的用户信息
 	follows := userMan.QueryFollows(userId)
-	userList := h.ConvertUsers(follows, true)
+	userList := h.ConvertUsers(follows, false)
+	for i := 0; i < len(*userList); i++ {
+		(*userList)[i].IsFollow = h.DB.User.IsFollow(userId, (*userList)[i].Id)
+	}
 	resp.UserList = *userList
 }
 
@@ -105,17 +102,11 @@ func (h *Handler) FollowerList(c *gin.Context) {
 	resp := Resp{
 		Response: BaseResponse(),
 	}
-	defer func ()  {
-		c.JSON(http.StatusOK, resp)	
+	defer func() {
+		c.JSON(http.StatusOK, resp)
 	}()
 
-	inputId, ok := c.Get("user_id")
-	if !ok {
-		resp.Status(StatusAuthFailed)
-		return
-	}
-	userId := inputId.(int64)
-
+	userId := c.GetInt64("user_id")
 	userMan := h.DB.User
 	//用户不存在
 	if !userMan.IsExistWithId(userId) {
@@ -124,7 +115,10 @@ func (h *Handler) FollowerList(c *gin.Context) {
 	}
 	//在数据库查询粉丝信息
 	followers := userMan.QueryFollowers(userId)
-	userList := h.ConvertUsers(followers, true)
+	userList := h.ConvertUsers(followers, false)
+	for i := 0; i < len(*userList); i++ {
+		(*userList)[i].IsFollow = h.DB.User.IsFollow(userId, (*userList)[i].Id)
+	}
 	resp.UserList = *userList
 }
 
@@ -136,8 +130,8 @@ func (h *Handler) FriendList(c *gin.Context) {
 	resp := Resp{
 		Response: BaseResponse(),
 	}
-	defer func ()  {
-		c.JSON(http.StatusOK, resp)	
+	defer func() {
+		c.JSON(http.StatusOK, resp)
 	}()
 
 	inputId, ok := c.Get("user_id")
