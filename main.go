@@ -67,7 +67,6 @@ func Douyin(engine *gin.Engine, c config.Douyin, storage douyin.StorageClient) {
 }
 
 func Storage(engine *gin.Engine, c config.Storage) *service.Storage {
-	engin := gin.Default()
-	storage := service.NewStorage(engin, c)
+	storage := service.NewStorage(engine, c)
 	return storage
 }

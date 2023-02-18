@@ -87,10 +87,11 @@ func NewStorage(g *gin.Engine, conf config.Storage) *Storage {
 	}
 	storageGroup := g.Group("storage")
 
-	storageGroup.GET(":dir/:hash", storage.Fetch(s.DataDir))
+	handler := storage.NewHandler(conf.DataDir, 1024)
+	storageGroup.GET("*file", handler.File)
 
-	s.makeURL = func(dir, hash string) string {
-		return "http://" + conf.ServeAddr + "/storage/" + dir + "/" + hash
+	s.makeURL = func(dir, file string) string {
+		return "http://" + conf.ServeAddr + "/storage/" + dir + "/" + file
 	}
 	return s
 }
