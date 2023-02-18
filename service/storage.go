@@ -91,6 +91,9 @@ func NewStorage(g *gin.Engine, conf config.Storage) *Storage {
 	storageGroup.GET("*file", handler.File)
 
 	s.makeURL = func(dir, file string) string {
+		if file == "" {
+			return ""
+		}
 		return "http://" + conf.ServeAddr + "/storage/" + dir + "/" + file
 	}
 	return s
