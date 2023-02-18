@@ -10,31 +10,30 @@ import (
 )
 
 func (h *Handler) User(c *gin.Context) {
-	type UserInfoResponse struct {
+	type Resp struct {
 		Response
 		User User `json:"user"`
 	}
+	resp := Resp{
+		Response: BaseResponse(),
+	}
+	defer func ()  {
+		c.JSON(http.StatusOK, resp)
+	}()
+
 	userID := c.GetInt64("user_id")
 	if userID == 0 {
-		// TODO @yn8886 删除这个函数，使用 Response.Status()
-		CommonResponseError(c, "user_id解析失败")
+		resp.Status(StatusAuthFailed)
 		return
 	}
 	u := model.User{}
 	err := h.DB.User.QueryById(userID, &u)
 	if err != nil {
-		CommonResponseError(c, err.Error())
+		resp.Status(StatusUserNotFound)
 		return
 	}
 	user := h.ConvertUser(u, false)
-
-	c.JSON(http.StatusOK, UserInfoResponse{
-		Response: Response{
-			StatusCode: StatusOK,
-			StatusMsg:  "OK",
-		},
-		User: user,
-	})
+	resp.User = user
 }
 
 func (h *Handler) UserLogin(c *gin.Context) {
@@ -43,18 +42,25 @@ func (h *Handler) UserLogin(c *gin.Context) {
 		UserId int64  `json:"user_id,omitempty"`
 		Token  string `json:"token,omitempty"`
 	}
+	resp := Resp{
+		Response: BaseResponse(),
+	}
+	defer func ()  {
+		c.JSON(http.StatusOK, resp)	
+	}()
+
 	userMan := h.DB.User
 	username := c.Query("username")
 	password := c.Query("password")
 
 	//用户不存在
 	if ok := userMan.IsExistWithName(username); !ok {
-		CommonResponseError(c, "用户不存在")
+		resp.Status(StatusAuthFailed)
 		return
 	}
 	//验证用户名和密码
 	if err := userMan.CheckNameAndPwd(username, password); err != nil {
-		CommonResponseError(c, err.Error())
+		resp.Status(StatusOtherError)
 		return
 	}
 	//获取user_id
@@ -62,19 +68,12 @@ func (h *Handler) UserLogin(c *gin.Context) {
 	//生成token
 	token, err := helper.GenerateToken(userId)
 	if err != nil {
-		CommonResponseError(c, err.Error())
+		resp.Status(StatusOtherError)
 		return
 	}
-
-	resp := Resp{
-		Response: Response{
-			StatusCode: 0,
-			StatusMsg:  "登录成功",
-		},
-		UserId: userId,
-		Token:  token,
-	}
-	c.JSON(http.StatusOK, resp)
+	//登录成功，包装resp
+	resp.UserId = userId
+	resp.Token = token
 }
 
 func (h *Handler) UserRegister(c *gin.Context) {
@@ -83,28 +82,35 @@ func (h *Handler) UserRegister(c *gin.Context) {
 		UserId int64  `json:"user_id,omitempty"`
 		Token  string `json:"token,omitempty"`
 	}
+	resp := Resp{
+		Response: BaseResponse(),
+	}
+	defer func ()  {
+		c.JSON(http.StatusOK, resp)	
+	}()
+
 	userMan := h.DB.User
 	username := c.Query("username")
 	inputPwd, ok := c.Get("hash_password")
 	if !ok {
-		CommonResponseError(c, "密码加密失败")
+		resp.Status(StatusOtherError)
 		return
 	}
 	password := inputPwd.(string)
 
 	//用户名存在
 	if ok := userMan.IsExistWithName(username); ok {
-		CommonResponseError(c, "用户已存在")
+		resp.Status(StatusOtherError)
 		return
 	}
 	//用户名为空
 	if username == "" {
-		CommonResponseError(c, "用户名为空")
+		resp.Status(StatusOtherError)
 		return
 	}
 	//用户名长度超出限制
 	if utf8.RuneCount([]byte(username)) > 32 {
-		CommonResponseError(c, "用户名长度超过限制")
+		resp.Status(StatusOtherError)
 		return
 	}
 	//保存到数据库
@@ -113,31 +119,17 @@ func (h *Handler) UserRegister(c *gin.Context) {
 		Password: password,
 	}
 	if err := userMan.AddUser(&user); err != nil {
-		CommonResponseError(c, err.Error())
+		resp.Status(StatusOtherError)
 		return
 	}
 	//生成user_id和token
 	userId := user.Id
 	token, err := helper.GenerateToken(userId)
 	if err != nil {
-		CommonResponseError(c, err.Error())
+		resp.Status(StatusOtherError)
 		return
 	}
-
-	resp := Resp{
-		Response: Response{
-			StatusCode: 0,
-			StatusMsg:  "注册成功",
-		},
-		UserId: userId,
-		Token:  token,
-	}
-	c.JSON(http.StatusOK, resp)
-}
-
-func CommonResponseError(c *gin.Context, msg string) {
-	c.JSON(http.StatusOK, Response{
-		StatusCode: -1,
-		StatusMsg:  msg,
-	})
+	//注册成功，包装resp
+	resp.UserId = userId
+	resp.Token = token
 }
