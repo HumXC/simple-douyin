@@ -17,8 +17,23 @@ const (
 	StatusAuthFailed = iota + 400
 	StatusAuthKeyTimeout
 	StatusUserNotFound
+	StatusUploadNotAVideo
+	StatusFailedToFetchVideo
 	StatusOtherError = -1
 )
+
+var StatusMsgs = make(map[int32]string, 16)
+
+func init() {
+	StatusMsgs[StatusOK] = "OK"
+	StatusMsgs[StatusOtherError] = "其他错误"
+	StatusMsgs[StatusAuthFailed] = "身份验证失败"
+	StatusMsgs[StatusAuthKeyTimeout] = "登录信息已过期"
+	StatusMsgs[StatusUserNotFound] = "用户不存在"
+	StatusMsgs[StatusUploadNotAVideo] = "上传的文件不是视频"
+	StatusMsgs[StatusFailedToFetchVideo] = "获取视频列表失败"
+
+}
 
 // 所有 gin.HandlerFunc 都应该绑定到 Handler 上
 type Handler struct {
@@ -30,6 +45,23 @@ type Handler struct {
 type Response struct {
 	StatusCode int32  `json:"status_code"`
 	StatusMsg  string `json:"status_msg,omitempty"`
+}
+
+// 返回一个状态码 200 的 Response
+func BaseResponse() Response {
+	return Response{
+		StatusCode: StatusOK,
+		StatusMsg:  StatusMsgs[StatusOK],
+	}
+}
+
+// 设定 Response 的状态码，如果状态消息在 StatusMsgs 中找不到，则状态消息会被设定为 "未定义状态"
+func (r *Response) Status(code int32) {
+	r.StatusCode = code
+	r.StatusMsg = StatusMsgs[code]
+	if r.StatusMsg == "" {
+		r.StatusMsg = "未定义状态"
+	}
 }
 
 type Video struct {
