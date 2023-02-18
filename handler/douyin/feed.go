@@ -47,8 +47,8 @@ func (h *Handler) Feed(num int) func(*gin.Context) {
 			// FIXME 获取正确的值
 			resp.VideoList[i].IsFavorite = false
 			resp.VideoList[i].Id = videos[i].ID
-			resp.VideoList[i].CoverUrl = h.StorageClient.GetURLWithHash("covers", videos[i].Cover)
-			resp.VideoList[i].PlayUrl = h.StorageClient.GetURLWithHash("videos", videos[i].Video)
+			resp.VideoList[i].CoverUrl = h.StorageClient.GetURL("covers", videos[i].Cover)
+			resp.VideoList[i].PlayUrl = h.StorageClient.GetURL("videos", videos[i].Video)
 		}
 		if len(videos) != 0 {
 			resp.NextTime = videos[len(videos)-1].Time.Unix()

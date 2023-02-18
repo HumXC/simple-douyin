@@ -30,9 +30,16 @@ func main() {
 		panic(err)
 	}
 
-	// 初始化两个独立的服务，其中 douyin 服务依赖 storage 服务
-	storageEngine, storageClient := Storage(conf.Storage)
-	douyinEngine := Douyin(conf.Douyin, storageClient)
+	// 初始化两个服务，其中 douyin 服务依赖 storage 服务
+	// 如果配置里两个服务的 ServeAddr 相同，就用同一个 gin.Engine,否则使用两个 gin.Engine 实例
+	var storageEngine *gin.Engine = NewEngine()
+	var douyinEngine *gin.Engine = storageEngine
+	if conf.Douyin.ServeAddr != conf.Storage.ServeAddr {
+		douyinEngine = NewEngine()
+	}
+
+	storageClient := Storage(storageEngine, conf.Storage)
+	Douyin(douyinEngine, conf.Douyin, storageClient)
 
 	// 另开个协程抛跑 storage 服务
 	go func() {
@@ -42,8 +49,10 @@ func main() {
 	panic(douyinEngine.Run(conf.Douyin.ServeAddr))
 }
 
-func Douyin(c config.Douyin, storage douyin.StorageClient) *gin.Engine {
-	engin := gin.Default()
+func NewEngine() *gin.Engine {
+	return gin.Default()
+}
+func Douyin(engine *gin.Engine, c config.Douyin, storage douyin.StorageClient) {
 	// 初始化数据库
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     c.Redis.Addr,
@@ -54,12 +63,11 @@ func Douyin(c config.Douyin, storage douyin.StorageClient) *gin.Engine {
 	if err != nil {
 		panic(err)
 	}
-	_ = service.NewDouyin(engin, c, db, storage)
-	return engin
+	_ = service.NewDouyin(engine, c, db, storage)
 }
 
-func Storage(c config.Storage) (*gin.Engine, *service.Storage) {
+func Storage(engine *gin.Engine, c config.Storage) *service.Storage {
 	engin := gin.Default()
 	storage := service.NewStorage(engin, c)
-	return engin, storage
+	return storage
 }

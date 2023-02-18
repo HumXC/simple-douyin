@@ -16,7 +16,7 @@ type StorageClient interface {
 	// 上传一个文件到存储
 	// TODO 将 fileName 改成 io.Reader 实现
 	Upload(fileName, dir string) (string, error)
-	GetURLWithHash(dir, hash string) string
+	GetURL(dir, file string) string
 }
 
 var buf = sync.Pool{
@@ -100,8 +100,8 @@ func (h *Handler) PublishList(c *gin.Context) {
 		resp.VideoList[i].FavoriteCount = videos[i].FavoriteCount
 		resp.VideoList[i].IsFavorite = false
 		resp.VideoList[i].Id = videos[i].ID
-		resp.VideoList[i].CoverUrl = h.StorageClient.GetURLWithHash("covers", videos[i].Cover)
-		resp.VideoList[i].PlayUrl = h.StorageClient.GetURLWithHash("videos", videos[i].Video)
+		resp.VideoList[i].CoverUrl = h.StorageClient.GetURL("covers", videos[i].Cover)
+		resp.VideoList[i].PlayUrl = h.StorageClient.GetURL("videos", videos[i].Video)
 	}
 
 }
