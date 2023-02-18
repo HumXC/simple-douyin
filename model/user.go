@@ -26,6 +26,9 @@ type userMan struct {
 // 如果 user1 关注了 user2，返回 true
 func (u *userMan) IsFollow(user1, user2 int64) bool {
 	// TODO 是否可以引入 redis
+	if user1 == 0 {
+		return false
+	}
 	id := 0
 	_ = u.db.Model(&User{
 		Id: user1,

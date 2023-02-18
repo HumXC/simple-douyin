@@ -9,20 +9,14 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type UserLoginResponse struct {
-	Response
-	UserId int64  `json:"user_id,omitempty"`
-	Token  string `json:"token,omitempty"`
-}
-
-type UserInfoResponse struct {
-	Response
-	User User `json:"user"`
-}
-
 func (h *Handler) User(c *gin.Context) {
+	type UserInfoResponse struct {
+		Response
+		User User `json:"user"`
+	}
 	userID := c.GetInt64("user_id")
 	if userID == 0 {
+		// TODO @yn8886 删除这个函数，使用 Response.Status()
 		CommonResponseError(c, "user_id解析失败")
 		return
 	}
@@ -58,6 +52,11 @@ func (h *Handler) user(id int64) (User, error) {
 }
 
 func (h *Handler) UserLogin(c *gin.Context) {
+	type Resp struct {
+		Response
+		UserId int64  `json:"user_id,omitempty"`
+		Token  string `json:"token,omitempty"`
+	}
 	userMan := h.DB.User
 	username := c.Query("username")
 	password := c.Query("password")
@@ -81,7 +80,7 @@ func (h *Handler) UserLogin(c *gin.Context) {
 		return
 	}
 
-	resp := UserLoginResponse{
+	resp := Resp{
 		Response: Response{
 			StatusCode: 0,
 			StatusMsg:  "登录成功",
@@ -93,6 +92,11 @@ func (h *Handler) UserLogin(c *gin.Context) {
 }
 
 func (h *Handler) UserRegister(c *gin.Context) {
+	type Resp struct {
+		Response
+		UserId int64  `json:"user_id,omitempty"`
+		Token  string `json:"token,omitempty"`
+	}
 	userMan := h.DB.User
 	username := c.Query("username")
 	inputPwd, ok := c.Get("hash_password")
@@ -134,7 +138,7 @@ func (h *Handler) UserRegister(c *gin.Context) {
 		return
 	}
 
-	resp := UserLoginResponse{
+	resp := Resp{
 		Response: Response{
 			StatusCode: 0,
 			StatusMsg:  "注册成功",

@@ -95,7 +95,6 @@ func (h *Handler) PublishList(c *gin.Context) {
 		resp.VideoList[i].Author = user
 		resp.VideoList[i].CommentCount = videos[i].CommentCount
 		resp.VideoList[i].FavoriteCount = videos[i].FavoriteCount
-		// FIXME 获取正确的 IsFavorite
 		resp.VideoList[i].IsFavorite = false
 		resp.VideoList[i].Id = videos[i].ID
 		resp.VideoList[i].CoverUrl = h.StorageClient.GetURLWithHash("covers", videos[i].Cover)
