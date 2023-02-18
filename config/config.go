@@ -38,6 +38,7 @@ type Redis struct {
 type Storage struct {
 	DataDir   string `yaml:"data-dir"`
 	ServeAddr string `yaml:"serve-addr"`
+	Token     string `yaml:"token"`
 }
 
 // 默认配置
@@ -52,8 +53,8 @@ func defaultConfig() *Config {
 			VideoButCherMaxJob: 2,
 		},
 		Storage: Storage{
-			DataDir:   "Data",
-			ServeAddr: "由于要拼接 URL, 所以此处不能写 ':port', 要写确切的 'ip:port'",
+			DataDir: "Data",
+			Token:   "Kitty",
 		},
 	}
 }

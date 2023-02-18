@@ -29,18 +29,25 @@ func NewHandler(dataDir string, bufferSize uint) *Handler {
 }
 
 // 读取请求里的文件路径, 上传存储在本地的文件
-func (h *Handler) File(c *gin.Context) {
-	file := c.Param("file")
-	fileName := path.Join(h.dataDir, file)
-	if !helper.IsFileExit(fileName) {
-		c.Status(http.StatusNotFound)
-		return
-	}
-	err := h.copyFile(c.Writer, fileName)
-	// TODO 解决 broken pipe 和 write: connection reset by peer 错误
-	if err != nil {
-		c.AbortWithStatus(http.StatusInternalServerError)
-		panic(err)
+func (h *Handler) File(pool map[string]string) func(*gin.Context) {
+	return func(c *gin.Context) {
+		md5Sum := c.Param("md5")[1:]
+		file, ok := pool[md5Sum]
+		if !ok {
+			c.AbortWithStatus(http.StatusForbidden)
+			return
+		}
+		fileName := path.Join(h.dataDir, file)
+		if !helper.IsFileExit(fileName) {
+			c.Status(http.StatusNotFound)
+			return
+		}
+		err := h.copyFile(c.Writer, fileName)
+		// TODO 解决 broken pipe 和 write: connection reset by peer 错误
+		if err != nil {
+			c.AbortWithStatus(http.StatusInternalServerError)
+			panic(err)
+		}
 	}
 }
 func (h *Handler) copyFile(w io.Writer, fileName string) error {

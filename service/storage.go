@@ -2,6 +2,7 @@ package service
 
 import (
 	"bytes"
+	"crypto"
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
@@ -88,13 +89,20 @@ func NewStorage(g *gin.Engine, conf config.Storage) *Storage {
 	storageGroup := g.Group("storage")
 
 	handler := storage.NewHandler(conf.DataDir, 1024)
-	storageGroup.GET("*file", handler.File)
-
+	// 用来存储 md5 与 文件路径的映射关系，也许可以存到 redis，但是我不想做
+	pool := make(map[string]string)
+	md5 := crypto.MD5.New()
+	storageGroup.GET("*md5", handler.File(pool))
 	s.makeURL = func(dir, file string) string {
 		if file == "" {
 			return ""
 		}
-		return "http://" + conf.ServeAddr + "/storage/" + dir + "/" + file
+		filePath := dir + "/" + file
+		sum := md5.Sum([]byte(conf.Token + filePath))
+		sumStr := hex.EncodeToString(sum)
+		pool[sumStr] = filePath
+		payh := "http://" + conf.ServeAddr + "/storage/" + sumStr
+		return payh
 	}
 	return s
 }
