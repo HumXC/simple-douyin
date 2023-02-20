@@ -6,8 +6,8 @@ import (
 	"os"
 
 	"github.com/HumXC/simple-douyin/config"
+	"github.com/HumXC/simple-douyin/database/sqldb"
 	"github.com/HumXC/simple-douyin/handler/douyin"
-	"github.com/HumXC/simple-douyin/model"
 	"github.com/HumXC/simple-douyin/service"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -59,7 +59,7 @@ func Douyin(engine *gin.Engine, c config.Douyin, storage douyin.StorageClient) {
 		Password: c.Redis.Password,
 		DB:       c.Redis.DB,
 	})
-	db, err := model.NewDouyinDB(c.SQL.Type, c.SQL.DSN, rdb)
+	db, err := sqldb.NewDouyinDB(c.SQL.Type, c.SQL.DSN, rdb)
 	if err != nil {
 		panic(err)
 	}

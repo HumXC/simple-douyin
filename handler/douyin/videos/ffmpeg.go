@@ -1,4 +1,4 @@
-package helper
+package videos
 
 import (
 	"bytes"

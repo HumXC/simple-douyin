@@ -1,14 +1,15 @@
-package model_test
+package sqldb_test
 
 import (
 	"path"
 	"testing"
 
+	"github.com/HumXC/simple-douyin/database/sqldb"
 	"github.com/HumXC/simple-douyin/model"
 )
 
 func TestDouyinPutAndGetByID(t *testing.T) {
-	douyinDB, err := model.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"), nil)
+	douyinDB, err := sqldb.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"), nil)
 	if err != nil {
 		t.Fatal(err)
 	}

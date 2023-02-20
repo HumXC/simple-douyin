@@ -1,17 +1,18 @@
-package helper_test
+package videos_test
 
 import (
 	"os"
+	"path"
 	"testing"
 
-	"github.com/HumXC/simple-douyin/helper"
+	"github.com/HumXC/simple-douyin/handler/douyin/videos"
 )
 
-const testVideo = "../test/video.mp4"
+var testVideo = path.Join(TestDir, "video.mp4")
 
 func TestCutVideoWithFfmpeg(t *testing.T) {
 	// 没报错就是成功
-	output, err := helper.CutVideoWithFfmpeg(testVideo)
+	output, err := videos.CutVideoWithFfmpeg(testVideo)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -20,7 +21,7 @@ func TestCutVideoWithFfmpeg(t *testing.T) {
 
 func BenchmarkCutVideoWithFfmpeg(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		output, err := helper.CutVideoWithFfmpeg(testVideo)
+		output, err := videos.CutVideoWithFfmpeg(testVideo)
 		if err != nil {
 			b.Fatal(err)
 		}
@@ -30,7 +31,7 @@ func BenchmarkCutVideoWithFfmpeg(b *testing.B) {
 
 func TestSmallVideoWithFfmpeg(t *testing.T) {
 	// 没报错就是成功
-	output, err := helper.SmallVideoWithFfmpeg(testVideo)
+	output, err := videos.SmallVideoWithFfmpeg(testVideo)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -39,7 +40,7 @@ func TestSmallVideoWithFfmpeg(t *testing.T) {
 
 func BenchmarkSmallVideoWithFfmpeg(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		output, err := helper.SmallVideoWithFfmpeg(testVideo)
+		output, err := videos.SmallVideoWithFfmpeg(testVideo)
 		if err != nil {
 			b.Fatal(err)
 		}

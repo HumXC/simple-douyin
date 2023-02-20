@@ -1,22 +1,12 @@
-package model
+package sqldb
 
 import (
 	"errors"
 
+	"github.com/HumXC/simple-douyin/model"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
-
-type User struct {
-	Id             int64 `gorm:"primarykey"`
-	Name           string
-	Password       string
-	TotalFavorited int64
-	FavoriteCount  int64
-	Avatar         string
-	Background     string
-	Follows        []User `gorm:"many2many:relations"`
-}
 
 type userMan struct {
 	db *gorm.DB
@@ -37,7 +27,7 @@ func (u *userMan) CountFollow(userID int64) int64 {
 	if userID == 0 {
 		return 0
 	}
-	return u.db.Model(&User{
+	return u.db.Model(&model.User{
 		Id: userID,
 	}).Select("id").Association("Follows").Count()
 }
@@ -50,37 +40,37 @@ func (u *userMan) IsFollow(user1, user2 int64) bool {
 		return false
 	}
 	id := 0
-	_ = u.db.Model(&User{
+	_ = u.db.Model(&model.User{
 		Id: user1,
 	}).Select("id").Where("id=?", user2).Association("Follows").Find(&id)
 	return id != 0
 }
 func (u *userMan) GetIdByName(name string) (userId int64) {
 	var id int64
-	u.db.Model(&User{}).Select("id").Where("name=?", name).Find(&id)
+	u.db.Model(&model.User{}).Select("id").Where("name=?", name).Find(&id)
 	return id
 }
 
 func (u *userMan) IsExistWithName(name string) bool {
 	var id int64
-	err := u.db.Model(&User{}).Select("id").Where("name=?", name).Find(&id).Error
+	err := u.db.Model(&model.User{}).Select("id").Where("name=?", name).Find(&id).Error
 	return err == nil && id != 0
 }
 
 func (u *userMan) IsExistWithId(id int64) bool {
 	var _id int64
-	err := u.db.Model(&User{}).Select("id").Where("id=?", id).First(&_id).Error
+	err := u.db.Model(&model.User{}).Select("id").Where("id=?", id).First(&_id).Error
 	return err == nil && _id != 0
 }
 
 func (u *userMan) CheckNameAndPwd(name string, password string) error {
 	pwd := ""
-	u.db.Model(&User{}).Select("password").Where("name=?", name).Find(&pwd)
+	u.db.Model(&model.User{}).Select("password").Where("name=?", name).Find(&pwd)
 	err := PwdVerify(pwd, password)
 	return err
 }
 
-func (u *userMan) AddUser(user *User) error {
+func (u *userMan) AddUser(user *model.User) error {
 	if user == nil {
 		return errors.New("AddUser user 空指针")
 	}
@@ -88,7 +78,7 @@ func (u *userMan) AddUser(user *User) error {
 	return u.db.Create(user).Error
 }
 
-func (u *userMan) QueryById(userId int64, user *User) error {
+func (u *userMan) QueryById(userId int64, user *model.User) error {
 	if user == nil {
 		return errors.New("QueryById user空指针")
 	}
@@ -118,31 +108,31 @@ func (u *userMan) CancelFollow(userId, followId int64) error {
 }
 
 // 获取关注者用户
-func (u *userMan) QueryFollows(userID int64) *[]User {
-	result := make([]User, 0)
+func (u *userMan) QueryFollows(userID int64) *[]model.User {
+	result := make([]model.User, 0)
 	if userID == 0 {
 		return &result
 	}
-	u.db.Model(&User{
+	u.db.Model(&model.User{
 		Id: userID,
 	}).Omit("password").Association("Follows").Find(&result)
 	return &result
 }
 
 // 获取粉丝用户
-func (u *userMan) QueryFollowers(userID int64) *[]User {
-	result := make([]User, 0)
+func (u *userMan) QueryFollowers(userID int64) *[]model.User {
+	result := make([]model.User, 0)
 	if userID == 0 {
 		return &result
 	}
 	// 能用就行
 	subQuery := u.db.Table("relations").Where("follow_id=?", userID).Select("user_id")
-	u.db.Model(&User{}).Omit("password").Where("id IN (?)", subQuery).Find(&result)
+	u.db.Model(&model.User{}).Omit("password").Where("id IN (?)", subQuery).Find(&result)
 	return &result
 }
 
 // Deprecated: 使用 QueryFollows
-func (u *userMan) QueryFollowsById(userId int64, users *[]User) error {
+func (u *userMan) QueryFollowsById(userId int64, users *[]model.User) error {
 	return u.db.Table("users as u").
 		Select([]string{"id", "name", "follow_count", "follower_count"}).
 		Joins("left join relations as r on u.id = r.follow_id").
@@ -150,16 +140,16 @@ func (u *userMan) QueryFollowsById(userId int64, users *[]User) error {
 }
 
 // Deprecated: 使用 QueryFollowers
-func (u *userMan) QueryFollowersById(userId int64, users *[]User) error {
+func (u *userMan) QueryFollowersById(userId int64, users *[]model.User) error {
 	return u.db.Table("users as u").
 		Select([]string{"id", "name", "follow_count", "follower_count"}).
 		Joins("left join relations as r on u.id = r.user_id").
 		Where("r.follow_id=?", userId).Find(users).Error
 }
 
-func (u *userMan) QueryFriendsById(userId int64, users *[]User) error {
+func (u *userMan) QueryFriendsById(userId int64, users *[]model.User) error {
 	subQuery := u.db.Raw("select a.follow_id from relations as a join relations b on a.user_id=b.follow_id and a.follow_id=b.user_id and a.user_id=?", userId)
-	return u.db.Model(&User{}).Where("id IN (?)", subQuery).Find(users).Error
+	return u.db.Model(&model.User{}).Where("id IN (?)", subQuery).Find(users).Error
 }
 
 func PwdVerify(hashPassword, password string) error {

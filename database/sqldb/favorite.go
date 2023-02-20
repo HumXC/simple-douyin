@@ -1,21 +1,15 @@
-package model
+package sqldb
 
 import (
 	"errors"
 	"strconv"
 	"time"
 
+	"github.com/HumXC/simple-douyin/model"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"gorm.io/gorm"
 )
-
-type ThumbsUp struct {
-	gorm.Model
-	UserId     int64
-	VideoId    int64
-	ActionType int32
-}
 
 type thumbsUpMan struct {
 	db  *gorm.DB
@@ -24,7 +18,7 @@ type thumbsUpMan struct {
 
 // 点赞操作，此函数不会对行参做任何验证
 func (t *thumbsUpMan) Action(videoID, userID int64, actionType int32) error {
-	data := ThumbsUp{
+	data := model.ThumbsUp{
 		VideoId: videoID,
 		UserId:  userID,
 	}
@@ -42,7 +36,7 @@ func (t *thumbsUpMan) ActionTypeChange(c *gin.Context, videoId int, userId int) 
 	//从redis里查
 	actionType, rdbErr := t.rdb.Get(c, strconv.Itoa(videoId)+strconv.Itoa(userId)).Result()
 	//从sqlite里查是否存在数据
-	data := ThumbsUp{}
+	data := model.ThumbsUp{}
 	dbErr := t.db.Where("video_id = ? and user_id = ?", videoId, userId).Find(&data).Error
 	actionTypeInt, _ := strconv.Atoi(actionType)
 	//redis或者sqlite中数据不存在
@@ -82,7 +76,7 @@ func (t *thumbsUpMan) ActionTypeChange(c *gin.Context, videoId int, userId int) 
 // ActionTypeAdd 添加一条点赞信息
 func (t *thumbsUpMan) ActionTypeAdd(c *gin.Context, videoId int, userId int) error {
 	actionType, rdbErr := t.rdb.Get(c, strconv.Itoa(videoId)+strconv.Itoa(userId)).Result()
-	data := ThumbsUp{}
+	data := model.ThumbsUp{}
 	dbErr := t.db.Where("video_id = ? and user_id = ?", videoId, userId).Find(&data).Error
 	//redis里没有数据
 	if rdbErr == redis.Nil && dbErr == gorm.ErrRecordNotFound {

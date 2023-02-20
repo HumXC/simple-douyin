@@ -4,7 +4,6 @@ import (
 	"os"
 	"sync"
 
-	"github.com/HumXC/simple-douyin/helper"
 	"github.com/HumXC/simple-douyin/model"
 )
 
@@ -14,6 +13,14 @@ type ButcherFinidhFunc = func(job Job, video, cover string, err error) (delete b
 
 // Butcher 开启协程运行的函数
 type ButcherWorkFunc = func(input string) (video, cover string, err error)
+
+type VideoJobMan interface {
+	// 添加一个任务，如果没有错误，传入的 job 将被补足 ID 等数据库字段
+	Add(job model.VideoJob) uint
+	// 获取所有未完成的 job
+	Get() []model.VideoJob
+	Rm(id uint) error
+}
 
 type Job struct {
 	ID     uint
@@ -27,7 +34,7 @@ type Job struct {
 // 用于将压缩视频以及截取封面
 // 工作过程是异步的，每完成一个任务都会调用对应的 WhenFinish
 type Butcher struct {
-	db      *model.VideoJobMan
+	db      VideoJobMan
 	tasks   []Job // 任务栈
 	work    ButcherWorkFunc
 	finish  ButcherFinidhFunc
@@ -36,11 +43,11 @@ type Butcher struct {
 }
 
 // 创建一个 Butcher，maxJob 是同时工作的最大协程数量，在 work 完成后会调用 finish
-func NewButcher(db *model.VideoJobMan, maxJob int, finish ButcherFinidhFunc) *Butcher {
+func NewButcher(db VideoJobMan, maxJob int, finish ButcherFinidhFunc) *Butcher {
 	return SNewButcher(db, maxJob, nil, finish)
 }
 
-func SNewButcher(db *model.VideoJobMan, maxJob int, work ButcherWorkFunc, finish ButcherFinidhFunc) *Butcher {
+func SNewButcher(db VideoJobMan, maxJob int, work ButcherWorkFunc, finish ButcherFinidhFunc) *Butcher {
 	b := &Butcher{
 		db:      db,
 		work:    work,
@@ -139,11 +146,11 @@ func (b *Butcher) do() {
 }
 
 func defaultWork(input string) (string, string, error) {
-	video, err := helper.SmallVideoWithFfmpeg(input)
+	video, err := SmallVideoWithFfmpeg(input)
 	if err != nil {
 		return "", "", err
 	}
-	cover, err := helper.CutVideoWithFfmpeg(video)
+	cover, err := CutVideoWithFfmpeg(video)
 	if err != nil {
 		return "", "", err
 	}

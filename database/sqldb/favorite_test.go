@@ -1,15 +1,16 @@
-package model_test
+package sqldb_test
 
 import (
 	"path"
 	"testing"
 
+	"github.com/HumXC/simple-douyin/database/sqldb"
 	"github.com/HumXC/simple-douyin/model"
 	"github.com/gin-gonic/gin"
 )
 
 func TestThumbsUp(t *testing.T) {
-	douyinDB, err := model.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"), nil)
+	douyinDB, err := sqldb.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"), nil)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -45,7 +46,7 @@ func TestThumbsUp(t *testing.T) {
 }
 func TestFavorite(t *testing.T) {
 	// FIXME 传入 Redis 实例
-	douyinDB, err := model.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"), nil)
+	douyinDB, err := sqldb.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"), nil)
 	var c *gin.Context
 	if err != nil {
 		t.Fatal(err)

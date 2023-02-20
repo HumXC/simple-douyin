@@ -1,8 +1,8 @@
 package douyin
 
 import (
+	"github.com/HumXC/simple-douyin/handler/douyin/videos"
 	"github.com/HumXC/simple-douyin/model"
-	"github.com/HumXC/simple-douyin/videos"
 )
 
 // 状态码定义，所有状态码应当在写在 StatusOK 与 StatusOtherError 之间
@@ -52,7 +52,7 @@ func init() {
 
 // 所有 gin.HandlerFunc 都应该绑定到 Handler 上
 type Handler struct {
-	DB            *model.DouyinDB
+	DB            *DouyinDB
 	StorageClient StorageClient
 	VideoButcher  *videos.Butcher
 	Avatars       []string

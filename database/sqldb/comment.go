@@ -1,8 +1,9 @@
-package model
+package sqldb
 
 import (
 	"errors"
 
+	"github.com/HumXC/simple-douyin/model"
 	"gorm.io/gorm"
 )
 
@@ -12,18 +13,11 @@ import (
  * @Date 2023/1/26 21:23
  **/
 
-type Comment struct {
-	UserID     int64  //用户ID
-	VideoId    int64  //视频ID
-	Content    string //评论内容
-	gorm.Model        //通用字段
-}
-
 type commentMan struct {
 	db *gorm.DB
 }
 
-func (c *commentMan) AddComment(comment *Comment) error {
+func (c *commentMan) AddComment(comment *model.Comment) error {
 	if comment == nil {
 		return errors.New("AddComment comment空指针")
 	}
@@ -34,7 +28,7 @@ func (c *commentMan) AddComment(comment *Comment) error {
 	return nil
 }
 
-func (c *commentMan) AddCommentAndUpdateCommentCount(comment *Comment) error {
+func (c *commentMan) AddCommentAndUpdateCommentCount(comment *model.Comment) error {
 	if comment == nil {
 		return errors.New("AddCommentAndUpdateCount comment空指针")
 	}
@@ -71,18 +65,18 @@ func (c *commentMan) DeleteCommentAndUpdateCountById(commentId, videoId int64) e
 	})
 }
 
-func (c *commentMan) QueryCommentById(id int64, comment *Comment) error {
+func (c *commentMan) QueryCommentById(id int64, comment *model.Comment) error {
 	if comment == nil {
 		return errors.New("QueryCommentById comment 空指针")
 	}
 	return c.db.Where("id=?", id).First(comment).Error
 }
 
-func (c *commentMan) QueryCommentListByVideoId(videoId int64, comments *[]Comment) error {
+func (c *commentMan) QueryCommentListByVideoId(videoId int64, comments *[]model.Comment) error {
 	if comments == nil {
 		return errors.New("QueryCommentListByVideoId comments空指针")
 	}
-	if err := c.db.Model(&Comment{}).Where("video_id=?", videoId).Find(comments).Error; err != nil {
+	if err := c.db.Model(&model.Comment{}).Where("video_id=?", videoId).Find(comments).Error; err != nil {
 		return err
 	}
 	return nil

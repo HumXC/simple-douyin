@@ -1,10 +1,11 @@
-package model_test
+package sqldb_test
 
 import (
 	"fmt"
 	"path"
 	"testing"
 
+	"github.com/HumXC/simple-douyin/database/sqldb"
 	"github.com/HumXC/simple-douyin/model"
 )
 
@@ -15,7 +16,7 @@ import (
  **/
 
 func TestComment(t *testing.T) {
-	douyinDB, err := model.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"), nil)
+	douyinDB, err := sqldb.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"), nil)
 	if err != nil {
 		t.Fatal(err)
 	}

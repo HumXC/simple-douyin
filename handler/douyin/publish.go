@@ -9,8 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/HumXC/simple-douyin/handler/douyin/videos"
 	"github.com/HumXC/simple-douyin/model"
-	"github.com/HumXC/simple-douyin/videos"
 	"github.com/gin-gonic/gin"
 )
 
