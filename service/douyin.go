@@ -34,8 +34,15 @@ func NewDouyin(g *gin.Engine, conf config.Douyin, db *model.DouyinDB, storageCli
 		middlewares.NeedLogin(),
 		handler.User,
 	)
-	douyin.POST("comment/action/", handler.CommentAction)
-	douyin.GET("comment/list/", handler.CommentList)
+	comment := douyin.Group("comment")
+	comment.Use(middlewares.NeedLogin())
+	comment.POST("action/", middlewares.JWTMiddleWare(), handler.CommentAction)
+	comment.GET("list/", handler.CommentList)
+
+	message := douyin.Group("message")
+	message.Use(middlewares.NeedLogin(), middlewares.JWTMiddleWare())
+	message.POST("action/", handler.MessageAction)
+	message.GET("chat/", handler.MessageChatListAction)
 
 	publish := douyin.Group("publish")
 	publish.Use(middlewares.NeedLogin())
