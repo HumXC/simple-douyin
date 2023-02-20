@@ -22,6 +22,11 @@ const (
 	StatusNeedLogin
 	InvalidParams
 	UnKnownActionType
+	StatusFailedPostComment
+	StatusCommentNotFound
+	StatusFailedDelComment
+	StatusFailedCommentList
+	StatusVideoHasNoComment
 	StatusOtherError = -1
 )
 
@@ -38,6 +43,11 @@ func init() {
 	StatusMsgs[StatusNeedLogin] = "需要登录"
 	StatusMsgs[InvalidParams] = "参数错误"
 	StatusMsgs[UnKnownActionType] = "未知操作类型"
+	StatusMsgs[StatusFailedPostComment] = "发布评论失败"
+	StatusMsgs[StatusCommentNotFound] = "未找到该评论"
+	StatusMsgs[StatusFailedDelComment] = "删除评论失败"
+	StatusMsgs[StatusFailedCommentList] = "拉取评论列表失败"
+	StatusMsgs[StatusVideoHasNoComment] = "该视频暂无评论"
 }
 
 // 所有 gin.HandlerFunc 都应该绑定到 Handler 上
