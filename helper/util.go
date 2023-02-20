@@ -16,7 +16,7 @@ func PickOne[T any](list []T) T {
 	if len(list) == 0 {
 		return result
 	}
-	i := rand.Intn(len(list) - 1)
+	i := rand.Intn(len(list))
 	result = list[i]
 	return result
 }
