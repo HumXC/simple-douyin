@@ -27,6 +27,7 @@ const (
 	StatusFailedDelComment
 	StatusFailedCommentList
 	StatusVideoHasNoComment
+	StatusFailedChatList
 	StatusOtherError = -1
 )
 
@@ -48,6 +49,7 @@ func init() {
 	StatusMsgs[StatusFailedDelComment] = "删除评论失败"
 	StatusMsgs[StatusFailedCommentList] = "拉取评论列表失败"
 	StatusMsgs[StatusVideoHasNoComment] = "该视频暂无评论"
+	StatusMsgs[StatusFailedChatList] = "拉取聊天记录失败"
 }
 
 // 所有 gin.HandlerFunc 都应该绑定到 Handler 上
@@ -115,6 +117,8 @@ type User struct {
 type Message struct {
 	Id         int64  `json:"id,omitempty"`
 	Content    string `json:"content,omitempty"`
+	ToUserId   int64  `json:"to_user_id,omitempty"`
+	FromUserId int64  `json:"from_user_id,omitempty"`
 	CreateTime string `json:"create_time,omitempty"`
 }
 
