@@ -81,7 +81,7 @@ func (h *Handler) MessageChatListAction(c *gin.Context) {
 			ToUserId:   message.ToUserId,
 			FromUserId: message.FromUserId,
 			Content:    message.Content,
-			CreateTime: message.CreatedAt.Format("2006-01-02 15:04:05"),
+			CreateTime: message.CreatedAt.Unix(),
 		}
 		messageList[idx] = messageData
 		idx = idx + 1
