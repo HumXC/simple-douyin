@@ -14,12 +14,27 @@ type ThumbsUp struct {
 	gorm.Model
 	UserId     int64
 	VideoId    int64
-	ActionType int
+	ActionType int32
 }
 
 type thumbsUpMan struct {
 	db  *gorm.DB
 	rdb *redis.Client
+}
+
+// 点赞操作，此函数不会对行参做任何验证
+func (t *thumbsUpMan) Action(videoID, userID int64, actionType int32) error {
+	data := ThumbsUp{
+		VideoId: videoID,
+		UserId:  userID,
+	}
+	err := t.db.Where("video_id = ? AND user_id = ?", videoID, userID).
+		Find(&data).Error
+	if err != nil {
+		return err
+	}
+	data.ActionType = actionType
+	return t.db.Save(&data).Error
 }
 
 // ActionTypeChange 取消点赞

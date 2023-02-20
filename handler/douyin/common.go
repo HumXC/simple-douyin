@@ -57,6 +57,7 @@ type Handler struct {
 	VideoButcher  *videos.Butcher
 	Avatars       []string
 	Backgrounds   []string
+	DBCache       model.DBCache
 }
 
 type Response struct {
