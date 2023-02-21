@@ -55,7 +55,8 @@ type CommentMan interface {
 }
 type MessageMan interface {
 	AddMessage(message *model.Message) error
-	QueryMessageRecord(fromUserId int64, toUserId int64, messages *[]model.Message) error
+	//查询createAt大于time的所有二人聊天记录
+	QueryChat(fromUserId int64, toUserId int64, time string, messages *[]model.Message) error
 }
 
 type ThumbsUpMan interface {
