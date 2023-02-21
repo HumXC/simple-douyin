@@ -1,48 +1,45 @@
 package cache
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"time"
 
 	"github.com/HumXC/simple-douyin/handler/douyin"
-	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 )
 
-type FavoriteMan struct {
-	thumbsUpActions map[string]int32
-	thumbsUpNum     map[int64]int64
-}
-
-func (r *RCache) Action(c *gin.Context, videoID, userID int64, actionType int32) error {
+func (r *RCache) Action(videoID, userID int64, actionType int32) error {
 	key := strconv.FormatInt(videoID, 10) + "." + strconv.FormatInt(userID, 10)
-	getAction, err := r.rdb.Get(c, key).Result()
+	getAction, err := r.rdb.Get(r.ctx, key).Result()
 	if err == redis.Nil {
-		r.rdb.Set(c, key, 1, time.Hour*24).Err()
+		r.rdb.Set(r.ctx, key, 1, time.Hour*24).Err()
 		return nil
 	}
-	// 点赞情况没有变化，什么时候会出现这种情况呢
 	intAction, err := strconv.ParseInt(getAction, 10, 32)
 	if int32(intAction) == actionType {
-		return fmt.Errorf("点赞数量没有变化: %d", actionType)
+		return fmt.Errorf("重复操作: %d", actionType)
 	}
 	if err != redis.Nil && err != nil {
-		panic(fmt.Errorf("点赞错误"))
+		return fmt.Errorf("喜欢错误： %w", err)
 	}
 	// 点赞还是取消点赞
 	switch actionType {
 	case 1:
-		r.rdb.Incr(c, key)
+		r.rdb.Incr(r.ctx, key)
 	case 2:
-		r.rdb.Decr(c, key)
+		r.rdb.Decr(r.ctx, key)
 	}
 	return nil
 }
-func (c *FavoriteMan) Count(vdeoID int64) int64 {
-	return c.thumbsUpNum[vdeoID]
+
+// 实现
+func (c *RCache) Count(vdeoID int64) int64 {
+	return 0
 }
-func (c *FavoriteMan) Sync(duration time.Duration, syncFunc func() error) {
+func (c *RCache) Sync(duration time.Duration, syncFunc func() error) {
+	// 未完成的函数
 	t := time.NewTimer(duration)
 	go func(t *time.Timer) {
 		for {
@@ -55,15 +52,16 @@ func (c *FavoriteMan) Sync(duration time.Duration, syncFunc func() error) {
 
 type RCache struct {
 	rdb *redis.Client
+	ctx context.Context
 }
 
 func NewDouyinRDB(rdb *redis.Client) (*douyin.RDBMan, error) {
 	if rdb == nil {
 		return &douyin.RDBMan{
-			// Favorite: &FavoriteMan{
-			// 	thumbsUpActions: make(map[string]int32),
-			// 	thumbsUpNum:     make(map[int64]int64),
-			// },
+			Favorite: &RCache{
+				rdb: rdb,
+				ctx: context.TODO(),
+			},
 		}, nil
 	}
 	return nil, nil
