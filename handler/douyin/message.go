@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 func (h *Handler) MessageAction(c *gin.Context) {
@@ -45,6 +46,7 @@ func (h *Handler) MessageAction(c *gin.Context) {
 }
 
 func (h *Handler) MessageChatListAction(c *gin.Context) {
+
 	type Resp struct {
 		Response
 		MessageList []Message ` json:"message_list,omitempty"`
@@ -57,23 +59,51 @@ func (h *Handler) MessageChatListAction(c *gin.Context) {
 	}()
 	messageMan := h.DB.Message
 	fromUserId := c.GetInt64("user_id")
-	toUserId, _ := strconv.Atoi(c.Query("to_user_id")) //对方用户ID
+	toUserId, err := strconv.ParseInt(c.Query("to_user_id"), 10, 64) //对方用户ID
+	if err != nil {
+		resp.Status(StatusOtherError)
+		return
+	}
+	preMsgTime, err := strconv.ParseInt(c.Query("pre_msg_time"), 10, 64) //上次最新消息的时间(第一次请求该值为0)
+	if err != nil {
+		resp.Status(StatusOtherError)
+		return
+	}
+	log.Println("上次最新消息时间:", preMsgTime)
 	var messages []model.Message
 
-	var messages1 []model.Message
-	var messages2 []model.Message
+	time := time.Unix(preMsgTime, 0).Format("2006-01-02 15:04:05")
+	time += ".9999999+08:00"
 
-	err := messageMan.QueryMessageRecord(fromUserId, int64(toUserId), &messages1)
-	err = messageMan.QueryMessageRecord(int64(toUserId), fromUserId, &messages2)
-
-	messages = append(messages1, messages2...)
-
+	err = messageMan.QueryChat(fromUserId, toUserId, time, &messages) //获取时间大于time的聊天记录
 	if err != nil {
 		resp.Status(StatusFailedChatList)
 		log.Println("拉取聊天记录失败", err.Error())
 		return
 	}
-	messageList := make([]Message, len(messages))
+
+	if len(messages) > 0 {
+		messageList := make([]Message, len(messages))
+		convert(messages, messageList)
+		resp.MessageList = messageList
+		return
+	}
+
+	//二者未发新消息,返回当前最新消息的时间戳,防止前端重复消费
+	defaultMsg := make([]Message, 1)
+	defaultMsg[0] = Message{
+		Id:         0,
+		Content:    "",
+		ToUserId:   toUserId,
+		FromUserId: fromUserId,
+		CreateTime: preMsgTime,
+	}
+	resp.MessageList = defaultMsg
+	return
+}
+
+// 将model.message切片转为Message切片
+func convert(messages []model.Message, messageList []Message) {
 	idx := 0
 	for _, message := range messages {
 		messageData := Message{
@@ -86,5 +116,5 @@ func (h *Handler) MessageChatListAction(c *gin.Context) {
 		messageList[idx] = messageData
 		idx = idx + 1
 	}
-	resp.MessageList = messageList
+
 }
