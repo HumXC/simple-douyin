@@ -128,7 +128,7 @@ func (h *Handler) PublishList(c *gin.Context) {
 	for i := 0; i < len(videos); i++ {
 		resp.VideoList[i].Author = user
 		resp.VideoList[i].CommentCount = videos[i].CommentCount
-		resp.VideoList[i].FavoriteCount = videos[i].FavoriteCount
+		resp.VideoList[i].FavoriteCount = h.RDB.Favorite.Count(videos[i].ID)
 		resp.VideoList[i].IsFavorite = false
 		resp.VideoList[i].Id = videos[i].ID
 		resp.VideoList[i].CoverUrl = h.StorageClient.GetURL("covers", videos[i].Cover)

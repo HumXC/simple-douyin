@@ -8,6 +8,33 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+func (h *Handler) Favorite(c *gin.Context) {
+	videoId, err := strconv.ParseInt(c.Query("video_id"), 10, 64)
+	if err != nil {
+		panic(err)
+	}
+	actionType, err := strconv.Atoi(c.Query("action_type"))
+	if err != nil {
+		panic(err)
+	}
+	userId := c.GetInt64("user_id")
+	resp := BaseResponse()
+	defer c.JSON(http.StatusOK, &resp)
+	if videoId == 0 || actionType == 0 {
+		resp.Status(InvalidParams)
+		return
+	}
+	if actionType != 1 && actionType != 2 {
+		resp.Status(InvalidParams)
+		return
+	}
+	err = h.RDB.Favorite.Action(videoId, userId, int32(actionType))
+	if err != nil {
+		resp.Status(StatusOtherError)
+		panic(fmt.Errorf("喜欢/取消喜欢错误: %w", err))
+	}
+}
+
 // Action 赞操作
 func (h *Handler) Action(c *gin.Context) {
 	videoId, _ := strconv.Atoi(c.Query("video_id"))

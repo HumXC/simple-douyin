@@ -43,7 +43,7 @@ func (h *Handler) Feed(num int) func(*gin.Context) {
 			user := h.ConvertUser(u, h.DB.User.IsFollow(userID, u.Id))
 			resp.VideoList[i].Author = user
 			resp.VideoList[i].CommentCount = videos[i].CommentCount
-			resp.VideoList[i].FavoriteCount = videos[i].FavoriteCount
+			resp.VideoList[i].FavoriteCount = h.RDB.Favorite.Count(videos[i].ID)
 			// FIXME 获取正确的值
 			resp.VideoList[i].IsFavorite = false
 			resp.VideoList[i].Id = videos[i].ID

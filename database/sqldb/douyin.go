@@ -6,7 +6,6 @@ import (
 
 	"github.com/HumXC/simple-douyin/handler/douyin"
 	"github.com/HumXC/simple-douyin/model"
-	"github.com/go-redis/redis/v8"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/sqlite"
 
@@ -15,7 +14,7 @@ import (
 
 // 初始化一个用于 douyin 业务的数据库，只支持 sqlite，fileName 是数据库文件的文件名
 // 例如 NewDouyinDB("./data.db")
-func NewDouyinDB(dbType string, dsn string, rdb *redis.Client) (*douyin.DouyinDB, error) {
+func NewDouyinDB(dbType string, dsn string) (*douyin.DBMan, error) {
 	var db *gorm.DB
 	switch dbType {
 	case "sqlite":
@@ -44,12 +43,12 @@ func NewDouyinDB(dbType string, dsn string, rdb *redis.Client) (*douyin.DouyinDB
 		&model.VideoJob{},
 		&model.Message{})
 
-	return &douyin.DouyinDB{
+	return &douyin.DBMan{
 		User:  &userMan{db: db},
 		Video: &videoMan{db: db},
 		ThumbsUp: &thumbsUpMan{
-			db:  db,
-			rdb: rdb},
+			db: db,
+		},
 		Comment: &commentMan{db: db},
 		VideoJob: &videoJobMan{
 			db: db,

@@ -5,16 +5,16 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/HumXC/simple-douyin/model"
+	"github.com/HumXC/simple-douyin/handler/douyin"
 	"github.com/go-redis/redis/v8"
 )
 
-type Cache struct {
+type Favorite struct {
 	thumbsUpActions map[string]int32
 	thumbsUpNum     map[int64]int64
 }
 
-func (c *Cache) ThumbsUp(videoID, userID int64, actionType int32) error {
+func (c *Favorite) Action(videoID, userID int64, actionType int32) error {
 	key := strconv.FormatInt(videoID, 10) + "." + strconv.FormatInt(userID, 10)
 	t, ok := c.thumbsUpActions[key]
 	if !ok {
@@ -36,10 +36,10 @@ func (c *Cache) ThumbsUp(videoID, userID int64, actionType int32) error {
 	}
 	return nil
 }
-func (c *Cache) CountThumbsUp(vdeoID int64) int64 {
+func (c *Favorite) Count(vdeoID int64) int64 {
 	return c.thumbsUpNum[vdeoID]
 }
-func (c *Cache) ThumbsUpSync(duration time.Duration, syncFunc func() error) {
+func (c *Favorite) Sync(duration time.Duration, syncFunc func() error) {
 	t := time.NewTimer(duration)
 	go func(t *time.Timer) {
 		for {
@@ -54,12 +54,14 @@ type RCache struct {
 	rdb *redis.Client
 }
 
-func New(rdb *redis.Client) model.DBCache {
+func NewDouyinRDB(rdb *redis.Client) (*douyin.RDBMan, error) {
 	if rdb == nil {
-		return &Cache{
-			thumbsUpActions: make(map[string]int32),
-			thumbsUpNum:     make(map[int64]int64),
-		}
+		return &douyin.RDBMan{
+			Favorite: &Favorite{
+				thumbsUpActions: make(map[string]int32),
+				thumbsUpNum:     make(map[int64]int64),
+			},
+		}, nil
 	}
-	return nil
+	return nil, nil
 }

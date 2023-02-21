@@ -10,7 +10,7 @@ import (
 )
 
 func TestThumbsUp(t *testing.T) {
-	douyinDB, err := sqldb.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"), nil)
+	douyinDB, err := sqldb.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -46,7 +46,7 @@ func TestThumbsUp(t *testing.T) {
 }
 func TestFavorite(t *testing.T) {
 	// FIXME 传入 Redis 实例
-	douyinDB, err := sqldb.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"), nil)
+	douyinDB, err := sqldb.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"))
 	var c *gin.Context
 	if err != nil {
 		t.Fatal(err)

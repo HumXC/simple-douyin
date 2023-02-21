@@ -6,11 +6,11 @@ import (
 	"os"
 
 	"github.com/HumXC/simple-douyin/config"
+	"github.com/HumXC/simple-douyin/database/cache"
 	"github.com/HumXC/simple-douyin/database/sqldb"
 	"github.com/HumXC/simple-douyin/handler/douyin"
 	"github.com/HumXC/simple-douyin/service"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
 )
 
 const ConfigFile = "./config.yaml"
@@ -53,17 +53,15 @@ func NewEngine() *gin.Engine {
 	return gin.Default()
 }
 func Douyin(engine *gin.Engine, c config.Douyin, storage douyin.StorageClient) {
-	// 初始化数据库
-	rdb := redis.NewClient(&redis.Options{
-		Addr:     c.Redis.Addr,
-		Password: c.Redis.Password,
-		DB:       c.Redis.DB,
-	})
-	db, err := sqldb.NewDouyinDB(c.SQL.Type, c.SQL.DSN, rdb)
+	db, err := sqldb.NewDouyinDB(c.SQL.Type, c.SQL.DSN)
 	if err != nil {
 		panic(err)
 	}
-	_ = service.NewDouyin(engine, c, db, storage)
+	rdb, err := cache.NewDouyinRDB(nil)
+	if err != nil {
+		panic(err)
+	}
+	_ = service.NewDouyin(engine, c, db, rdb, storage)
 }
 
 func Storage(engine *gin.Engine, c config.Storage) *service.Storage {

@@ -6,7 +6,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type DouyinDB struct {
+// 用于管理 SQL 数据库
+type DBMan struct {
 	Video    VideoMan
 	User     UserMan
 	Comment  CommentMan
@@ -57,9 +58,23 @@ type MessageMan interface {
 	AddMessage(message *model.Message) error
 	QueryMessageRecord(fromUserId int64, toUserId int64, messages *[]model.Message) error
 }
-
 type ThumbsUpMan interface {
 	Action(videoID, userID int64, actionType int32) error
 	ActionTypeChange(c *gin.Context, videoId int, userId int) error
 	ActionTypeAdd(c *gin.Context, videoId int, userId int) error
+}
+
+// 用于管理 Redis
+type RDBMan struct {
+	Favorite FavoriteMan
+}
+
+type FavoriteMan interface {
+	// 点赞操作
+	// 没有数据则会创建记录，永远不会删除记录
+	Action(videoID, userID int64, actionType int32) error
+	// 获取某个视频的点赞数量
+	Count(vdeoID int64) int64
+	// 每隔 duration 的时间从缓存拉取数据存放传入 syncFunc
+	// TODO ThumbsUpSync(duration time.Duration, syncFunc func() error)
 }

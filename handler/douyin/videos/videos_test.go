@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-const TestDir = "../../../test/videos"
+const TestDir = "../../../test"
 
 func TestMain(m *testing.M) {
 	_ = os.MkdirAll(TestDir, 0755)

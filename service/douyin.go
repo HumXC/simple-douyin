@@ -11,9 +11,10 @@ import (
 type DouYin struct {
 }
 
-func NewDouyin(g *gin.Engine, conf config.Douyin, db *douyin.DouyinDB, storageClient douyin.StorageClient) *DouYin { // 初始化 douyin
+func NewDouyin(g *gin.Engine, conf config.Douyin, db *douyin.DBMan, rdb *douyin.RDBMan, storageClient douyin.StorageClient) *DouYin { // 初始化 douyin
 	handler := douyin.Handler{
 		DB:            db,
+		RDB:           rdb,
 		StorageClient: storageClient,
 		Avatars:       conf.Avatars,
 		Backgrounds:   conf.Backgrounds,
@@ -54,6 +55,10 @@ func NewDouyin(g *gin.Engine, conf config.Douyin, db *douyin.DouyinDB, storageCl
 	relation.GET("/follow/list/", handler.FollowList)
 	relation.GET("/follower/list/", handler.FollowerList)
 	relation.GET("/friend/list/", handler.FriendList)
+
+	favorite := douyin.Group("favorite")
+	favorite.Use(middlewares.NeedLogin())
+	favorite.POST("action/", handler.Favorite)
 
 	return &DouYin{}
 }

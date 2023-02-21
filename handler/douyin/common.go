@@ -54,12 +54,12 @@ func init() {
 
 // 所有 gin.HandlerFunc 都应该绑定到 Handler 上
 type Handler struct {
-	DB            *DouyinDB
+	DB            *DBMan
+	RDB           *RDBMan
 	StorageClient StorageClient
 	VideoButcher  *videos.Butcher
 	Avatars       []string
 	Backgrounds   []string
-	DBCache       model.DBCache
 }
 
 type Response struct {

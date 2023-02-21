@@ -9,7 +9,7 @@ import (
 )
 
 func TestIsFollow(t *testing.T) {
-	douyinDB, err := sqldb.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"), nil)
+	douyinDB, err := sqldb.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -35,7 +35,7 @@ func TestIsFollow(t *testing.T) {
 	}
 }
 func TestCountFollowAndCountFollower(t *testing.T) {
-	douyinDB, err := sqldb.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"), nil)
+	douyinDB, err := sqldb.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"))
 	if err != nil {
 		t.Fatal(err)
 	}
