@@ -77,7 +77,7 @@ type RDBMan struct {
 
 type RVideoMan interface {
 	// 获取某个视频的点赞数量
-	CountFavorite(vdeoID int64) int64
+	CountFavorite(videoID int64) int64
 }
 type RUserMan interface {
 	// 获取 user 喜欢视频的数量
