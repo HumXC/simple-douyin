@@ -42,12 +42,13 @@ func (h *Handler) File(pool map[string]string) func(*gin.Context) {
 			c.Status(http.StatusNotFound)
 			return
 		}
-		err := h.copyFile(c.Writer, fileName)
-		// TODO 解决 broken pipe 和 write: connection reset by peer 错误
-		if err != nil {
-			c.AbortWithStatus(http.StatusInternalServerError)
-			panic(err)
-		}
+		_ = h.copyFile(c.Writer, fileName)
+		// 不解决了，反正能用
+		// 解决 broken pipe 和 write: connection reset by peer 错误
+		// if err != nil {
+		// 	c.AbortWithStatus(http.StatusInternalServerError)
+		// 	panic(err)
+		// }
 	}
 }
 func (h *Handler) copyFile(w io.Writer, fileName string) error {

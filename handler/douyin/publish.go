@@ -113,7 +113,7 @@ func (h *Handler) PublishList(c *gin.Context) {
 		resp.Status(StatusOtherError)
 		panic(fmt.Errorf("无法获取用户 [%d] : %w", userID, err))
 	}
-	if u.Id == 0 {
+	if u.ID == 0 {
 		resp.Status(StatusUserNotFound)
 		return
 	}

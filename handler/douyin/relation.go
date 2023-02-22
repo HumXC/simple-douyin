@@ -164,10 +164,10 @@ func (h *Handler) friends(id int64) ([]User, error) {
 	UserList := []User{}
 	for _, v := range friends {
 		follower := User{
-			Id:            v.Id,
+			Id:            v.ID,
 			Name:          v.Name,
-			FollowCount:   h.DB.User.CountFollow(v.Id),
-			FollowerCount: h.DB.User.CountFollower(v.Id),
+			FollowCount:   h.DB.User.CountFollow(v.ID),
+			FollowerCount: h.DB.User.CountFollower(v.ID),
 			IsFollow:      true,
 			Avatar:        h.StorageClient.GetURL("avatars", v.Avatar),
 			Background:    h.StorageClient.GetURL("backgrounds", v.Background),

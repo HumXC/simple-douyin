@@ -125,7 +125,7 @@ func (h *Handler) UserRegister(c *gin.Context) {
 		return
 	}
 	//生成user_id和token
-	userId := user.Id
+	userId := user.ID
 	token, err := helper.GenerateToken(userId)
 	if err != nil {
 		resp.Status(StatusOtherError)

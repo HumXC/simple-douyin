@@ -28,14 +28,16 @@ type Message struct {
 }
 
 type User struct {
-	Id             int64 `gorm:"primarykey"`
+	gorm.Model
+	ID             int64 `gorm:"primarykey"`
 	Name           string
 	Password       string
 	TotalFavorited int64
 	FavoriteCount  int64
 	Avatar         string
 	Background     string
-	Follows        []User `gorm:"many2many:relations"`
+	PublishList    []Video `gorm:"many2many:publish"`
+	Follows        []User  `gorm:"many2many:relations"`
 }
 
 type VideoJob struct {
@@ -47,7 +49,8 @@ type VideoJob struct {
 
 // 保存用户上传的视频
 type Video struct {
-	ID            int64 `gorm:"primarykey"`
+	gorm.Model
+	ID            int64
 	Time          time.Time
 	Video         string // 视频文件的 hash
 	Cover         string // 视频封面的 hash

@@ -68,8 +68,8 @@ func TestCountFollowAndCountFollower(t *testing.T) {
 	})
 	t.Run("关注者", func(t *testing.T) {
 		var want []model.User = []model.User{
-			{Id: 2},
-			{Id: 3},
+			{ID: 2},
+			{ID: 3},
 		}
 		got := *u.QueryFollows(1)
 		if len(got) == 0 {
@@ -79,7 +79,7 @@ func TestCountFollowAndCountFollower(t *testing.T) {
 		for _, g := range got {
 			ok := false
 			for _, w := range want {
-				if w.Id == g.Id {
+				if w.ID == g.ID {
 					ok = true
 					break
 				}
@@ -91,8 +91,8 @@ func TestCountFollowAndCountFollower(t *testing.T) {
 	})
 	t.Run("粉丝", func(t *testing.T) {
 		var want []model.User = []model.User{
-			{Id: 1},
-			{Id: 3},
+			{ID: 1},
+			{ID: 3},
 		}
 
 		got := *u.QueryFollowers(2)
@@ -103,7 +103,7 @@ func TestCountFollowAndCountFollower(t *testing.T) {
 		for _, g := range got {
 			ok := false
 			for _, w := range want {
-				if w.Id == g.Id {
+				if w.ID == g.ID {
 					ok = true
 					break
 				}

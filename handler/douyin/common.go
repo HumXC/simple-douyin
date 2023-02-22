@@ -136,9 +136,9 @@ type MessagePushEvent struct {
 // 转换数据库 model.User 到 douyin.User
 func (h *Handler) ConvertUser(u model.User, isFollow bool) User {
 	return User{
-		Id:            u.Id,
-		FollowCount:   h.DB.User.CountFollow(u.Id),
-		FollowerCount: h.DB.User.CountFollower(u.Id),
+		Id:            u.ID,
+		FollowCount:   h.DB.User.CountFollow(u.ID),
+		FollowerCount: h.DB.User.CountFollower(u.ID),
 		IsFollow:      isFollow,
 		Name:          u.Name,
 		Avatar:        h.StorageClient.GetURL("avatars", u.Avatar),

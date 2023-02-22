@@ -28,7 +28,7 @@ func (u *UserMan) CountFollow(userID int64) int64 {
 		return 0
 	}
 	return u.DB.Model(&model.User{
-		Id: userID,
+		ID: userID,
 	}).Select("id").Association("Follows").Count()
 }
 
@@ -41,7 +41,7 @@ func (u *UserMan) IsFollow(user1, user2 int64) bool {
 	}
 	id := 0
 	_ = u.DB.Model(&model.User{
-		Id: user1,
+		ID: user1,
 	}).Select("id").Where("id=?", user2).Association("Follows").Find(&id)
 	return id != 0
 }
@@ -114,7 +114,7 @@ func (u *UserMan) QueryFollows(userID int64) *[]model.User {
 		return &result
 	}
 	u.DB.Model(&model.User{
-		Id: userID,
+		ID: userID,
 	}).Omit("password").Association("Follows").Find(&result)
 	return &result
 }
