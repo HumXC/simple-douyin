@@ -36,8 +36,8 @@ type User struct {
 	FavoriteCount  int64
 	Avatar         string
 	Background     string
-	PublishList    []Video `gorm:"many2many:publish"`
-	Follows        []User  `gorm:"many2many:relations"`
+	Favorites      []Video `gorm:"many2many:favorites"`
+	Follows        []User  `gorm:"many2many:follows"`
 }
 
 type VideoJob struct {
