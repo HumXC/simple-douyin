@@ -28,14 +28,29 @@ func (h *Handler) Favorite(c *gin.Context) {
 		resp.Status(InvalidParams)
 		return
 	}
-	err = h.RDB.Favorite.Action(videoId, userId, int32(actionType))
+	err = h.RDB.User.Favorite(userId, videoId, int32(actionType))
 	if err != nil {
 		resp.Status(StatusOtherError)
 		panic(fmt.Errorf("喜欢/取消喜欢错误: %w", err))
 	}
 }
 
-// Action 赞操作
+func (h *Handler) FavoriteList(c *gin.Context) {
+	type Resp struct {
+		Response
+		VideoList []Video `json:"video_list"`
+	}
+	resp := Resp{
+		Response: BaseResponse(),
+	}
+	userID := c.GetInt64("user_id")
+	vsID := h.RDB.User.FavoriteList(userID)
+	vs := h.DB.Video.GetByIDs(vsID)
+	resp.VideoList = *h.ConvertVideos(&vs, userID, nil)
+	c.JSON(http.StatusOK, &resp)
+}
+
+// Deprecated Action 赞操作
 func (h *Handler) Action(c *gin.Context) {
 	videoId, _ := strconv.Atoi(c.Query("video_id"))
 	actionType, _ := strconv.Atoi(c.Query("action_type"))
@@ -62,18 +77,4 @@ func (h *Handler) Action(c *gin.Context) {
 		resp.Status(StatusOtherError)
 		panic(fmt.Errorf("点赞错误: %w", err))
 	}
-}
-
-// List 喜欢列表
-func (h *Handler) List(c *gin.Context) {
-	// user_id 可以直接 c.GetInt64() 获取，因为 /relation 接口添加了 NeedLogin 中间件，所以不用担心 user_id 为 0
-	userId, _ := strconv.Atoi(c.Query("user_id"))
-	if userId == 0 {
-		c.JSON(http.StatusBadRequest, Response{
-			StatusCode: -1,
-			StatusMsg:  "InvalidParams",
-		})
-		return
-	}
-
 }

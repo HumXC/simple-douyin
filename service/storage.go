@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"os"
 	"path"
+	"sync"
 
 	"github.com/HumXC/simple-douyin/config"
 	"github.com/HumXC/simple-douyin/handler/storage"
@@ -90,7 +91,7 @@ func NewStorage(g *gin.Engine, conf config.Storage) *Storage {
 
 	handler := storage.NewHandler(conf.DataDir, 1024)
 	// 用来存储 md5 与 文件路径的映射关系，也许可以存到 redis，但是我不想做
-	pool := make(map[string]string)
+	pool := &sync.Map{}
 	md5 := crypto.MD5.New()
 	storageGroup.GET("*md5", handler.File(pool))
 	s.makeURL = func(dir, file string) string {
@@ -100,7 +101,7 @@ func NewStorage(g *gin.Engine, conf config.Storage) *Storage {
 		filePath := dir + "/" + file
 		sum := md5.Sum([]byte(conf.Token + filePath))
 		sumStr := hex.EncodeToString(sum)
-		pool[sumStr] = filePath
+		pool.Store(sumStr, filePath)
 		payh := "http://" + conf.ServeAddr + "/storage/" + sumStr
 		return payh
 	}

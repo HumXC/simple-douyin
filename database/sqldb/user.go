@@ -12,11 +12,18 @@ type UserMan struct {
 	DB *gorm.DB
 }
 
-func (u *UserMan) Favorite(userID, videoID int64) error {
+func (u *UserMan) CountPublished(userID int64) (result int64) {
+	u.DB.Table("videos").Where("user_id=?", userID).Count(&result)
+	return
+}
+func (u *UserMan) IsFavorite(userID, videoID int64) bool {
 	hasID := u.DB.Model(&model.User{ID: userID}).
 		Where("video_id=?", videoID).
 		Association("Favorites").Count()
-	if hasID != 0 {
+	return hasID != 0
+}
+func (u *UserMan) Favorite(userID, videoID int64) error {
+	if u.IsFavorite(userID, videoID) {
 		return nil
 	}
 	u.DB.Model(&model.User{

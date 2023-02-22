@@ -29,10 +29,11 @@ func NewHandler(dataDir string, bufferSize uint) *Handler {
 }
 
 // 读取请求里的文件路径, 上传存储在本地的文件
-func (h *Handler) File(pool map[string]string) func(*gin.Context) {
+func (h *Handler) File(pool *sync.Map) func(*gin.Context) {
 	return func(c *gin.Context) {
 		md5Sum := c.Param("md5")[1:]
-		file, ok := pool[md5Sum]
+		_file, ok := pool.Load(md5Sum)
+		file := _file.(string)
 		if !ok {
 			c.AbortWithStatus(http.StatusForbidden)
 			return

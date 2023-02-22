@@ -143,6 +143,7 @@ func (h *Handler) ConvertUser(u model.User, isFollow bool) User {
 		Name:          u.Name,
 		Avatar:        h.StorageClient.GetURL("avatars", u.Avatar),
 		Background:    h.StorageClient.GetURL("backgrounds", u.Background),
+		WorkCount:     h.DB.User.CountPublished(u.ID),
 	}
 }
 
@@ -151,6 +152,41 @@ func (h *Handler) ConvertUsers(us *[]model.User, isFollow bool) *[]User {
 	result := make([]User, len(*us), len(*us))
 	for i := 0; i < len(*us); i++ {
 		result[i] = h.ConvertUser((*us)[i], isFollow)
+	}
+	return &result
+}
+
+// 转换视频，user 是请求对象的 userID，用于获取 IsFavorite 等字段
+// author 是视频发布者，未知时传入 nil
+func (h *Handler) ConvertVideo(src model.Video, user int64, author *User) Video {
+	v := Video{}
+	_u := model.User{}
+	if author == nil {
+		err := h.DB.User.QueryById(src.UserID, &_u)
+		if err != nil {
+			panic(err)
+		}
+		a := h.ConvertUser(_u, h.DB.User.IsFollow(user, _u.ID))
+		author = &a
+	}
+	v.Author = *author
+	v.CommentCount = src.CommentCount
+	v.FavoriteCount = h.RDB.Video.CountFavorite(src.ID)
+	if user != 0 {
+		v.IsFavorite = h.RDB.User.IsFavorite(user, src.ID)
+	}
+	v.Id = src.ID
+	v.CoverUrl = h.StorageClient.GetURL("covers", src.Cover)
+	v.PlayUrl = h.StorageClient.GetURL("videos", src.Video)
+	return v
+}
+
+// 转换视频，user 是请求对象的 userID，用于获取 IsFavorite 等字段
+// author 是视频发布者，未知时传入 nil
+func (h *Handler) ConvertVideos(vs *[]model.Video, user int64, author *User) *[]Video {
+	result := make([]Video, len(*vs), len(*vs))
+	for i := 0; i < len(*vs); i++ {
+		result[i] = h.ConvertVideo((*vs)[i], user, author)
 	}
 	return &result
 }

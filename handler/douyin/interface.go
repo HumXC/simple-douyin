@@ -16,10 +16,8 @@ type DBMan struct {
 	VideoJob videos.VideoJobMan
 }
 type UserMan interface {
-	// 喜欢一个视频
-	Favorite(userID, videoID int64) error
-	// 返回喜欢视频的列表
-	FavoriteList(userID int64) []model.Video
+	// 获取发布的视频数量
+	CountPublished(userID int64) int64
 	// 返回粉丝数量
 	CountFollower(userID int64) int64
 	// 返回关注数量
@@ -42,14 +40,16 @@ type UserMan interface {
 	QueryFriendsById(userId int64, users *[]model.User) error
 }
 type VideoMan interface {
+	// 通过 id 获取一堆视频
+	GetByIDs(ids []int64) []model.Video
 	// 通过 id 获取一个视频记录
-	GetByID(id int) (model.Video, error)
+	GetByID(id int64) model.Video
 	// 通过 user_id 获取一个用户发布所有的视频
-	GetByUser(userID int64) ([]model.Video, error)
+	GetByUser(userID int64) []model.Video
 	// 按上传时间倒序获取视频, 从latesTime 开始，最多 30 个
-	GetFeed(latestTime int64, num int) ([]model.Video, error)
+	GetFeed(latestTime int64, num int) []model.Video
 	// 在数据库里添加一条记录
-	Put(video model.Video) error
+	Put(video model.Video)
 }
 type CommentMan interface {
 	AddComment(comment *model.Comment) error
@@ -71,15 +71,21 @@ type ThumbsUpMan interface {
 
 // 用于管理 Redis
 type RDBMan struct {
-	Favorite FavoriteMan
+	User  RUserMan
+	Video RVideoMan
 }
 
-type FavoriteMan interface {
-	// 点赞操作
-	// 没有数据则会创建记录，永远不会删除记录
-	Action(videoID, userID int64, actionType int32) error
+type RVideoMan interface {
 	// 获取某个视频的点赞数量
-	Count(vdeoID int64) int64
-	// 每隔 duration 的时间从缓存拉取数据存放传入 syncFunc
-	// TODO ThumbsUpSync(duration time.Duration, syncFunc func() error)
+	CountFavorite(vdeoID int64) int64
+}
+type RUserMan interface {
+	// 获取 user 喜欢视频的数量
+	CountFavorite(userID int64) int64
+	// 获取 user 喜欢的视频列表
+	FavoriteList(userID int64) []int64
+	// user 是否喜欢了 video,userID 可能为0
+	IsFavorite(userID, videoID int64) bool
+	// 没有数据则会创建记录，永远不会删除记录
+	Favorite(userID, videoID int64, actionType int32) error
 }

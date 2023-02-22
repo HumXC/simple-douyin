@@ -39,7 +39,7 @@ func VideoButcherFinishFunc(h *Handler) videos.ButcherFinidhFunc {
 			return false
 		}
 		// 将视频信息写入数据库
-		_ = h.DB.Video.Put(model.Video{
+		h.DB.Video.Put(model.Video{
 			Video:  vHash,
 			Cover:  cHash,
 			Title:  job.Title,
@@ -118,21 +118,6 @@ func (h *Handler) PublishList(c *gin.Context) {
 		return
 	}
 	user := h.ConvertUser(u, false)
-
-	videos, err := h.DB.Video.GetByUser(userID)
-	if err != nil {
-		resp.Status(StatusOtherError)
-		panic(fmt.Errorf("无法获取用户发布的视频 [%d] : %w", userID, err))
-	}
-	resp.VideoList = make([]Video, len(videos))
-	for i := 0; i < len(videos); i++ {
-		resp.VideoList[i].Author = user
-		resp.VideoList[i].CommentCount = videos[i].CommentCount
-		resp.VideoList[i].FavoriteCount = h.RDB.Favorite.Count(videos[i].ID)
-		resp.VideoList[i].IsFavorite = false
-		resp.VideoList[i].Id = videos[i].ID
-		resp.VideoList[i].CoverUrl = h.StorageClient.GetURL("covers", videos[i].Cover)
-		resp.VideoList[i].PlayUrl = h.StorageClient.GetURL("videos", videos[i].Video)
-	}
-
+	videos := h.DB.Video.GetByUser(userID)
+	resp.VideoList = *h.ConvertVideos(&videos, 0, &user)
 }
