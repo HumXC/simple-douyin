@@ -14,7 +14,7 @@ func (r *Favorite) Action(videoID, userID int64, actionType int32) error {
 	key := strconv.FormatInt(videoID, 10) + "." + strconv.FormatInt(userID, 10)
 	getAction, err := r.rdb.Get(r.ctx, key).Result()
 	if err == redis.Nil {
-		r.rdb.Set(r.ctx, key, 1, time.Hour*24).Err()
+		r.rdb.Set(r.ctx, key, 1, time.Hour*12)
 		return nil
 	}
 	intAction, err := strconv.ParseInt(getAction, 10, 32)
@@ -35,9 +35,56 @@ func (r *Favorite) Action(videoID, userID int64, actionType int32) error {
 }
 
 // 实现
-func (c *Favorite) Count(vdeoID int64) int64 {
-	return 0
+func (r *Favorite) Count(videoID int64) int64 {
+	var count int
+	key := strconv.FormatInt(videoID, 10)
+	for {
+		keys, cursor, err := r.rdb.Scan(r.ctx, 0, key+"*", 0).Result()
+		if err != nil {
+			panic(fmt.Errorf(err.Error()))
+		}
+		count += len(keys)
+		if cursor == 0 {
+			break
+		}
+	}
+	return int64(count)
 }
+
+func (r *Favorite) FavoriteList(userID int64) []int64 {
+	List := make([]int64, 0, 10)
+	key := strconv.FormatInt(userID, 10)
+	for {
+		keys, cursor, err := r.rdb.Scan(r.ctx, 0, "*"+key, 0).Result()
+		if err != nil {
+			panic(fmt.Errorf(err.Error()))
+		}
+		for _, kkey := range keys {
+			svalue, err := r.rdb.Get(r.ctx, kkey).Result()
+			ivalue, err := strconv.ParseInt(svalue, 10, 64)
+			List = append(List, ivalue)
+			if err != nil {
+				panic(fmt.Errorf(err.Error()))
+			}
+		}
+		if cursor == 0 {
+			break
+		}
+	}
+	return List
+}
+
+func (r *Favorite) IsFavorite(userID, videoID int64) bool {
+	key := strconv.FormatInt(videoID, 10) + "." + strconv.FormatInt(userID, 10)
+	_, err := r.rdb.Get(r.ctx, key).Result()
+	if err == redis.Nil {
+		return false
+	} else if err != nil {
+		panic(fmt.Errorf(err.Error()))
+	}
+	return true
+}
+
 func (c *Favorite) Sync(duration time.Duration, syncFunc func() error) {
 	// 未完成的函数
 	t := time.NewTimer(duration)
