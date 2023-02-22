@@ -10,7 +10,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-func (r *RCache) Action(videoID, userID int64, actionType int32) error {
+func (r *Favorite) Action(videoID, userID int64, actionType int32) error {
 	key := strconv.FormatInt(videoID, 10) + "." + strconv.FormatInt(userID, 10)
 	getAction, err := r.rdb.Get(r.ctx, key).Result()
 	if err == redis.Nil {
@@ -35,10 +35,10 @@ func (r *RCache) Action(videoID, userID int64, actionType int32) error {
 }
 
 // 实现
-func (c *RCache) Count(vdeoID int64) int64 {
+func (c *Favorite) Count(vdeoID int64) int64 {
 	return 0
 }
-func (c *RCache) Sync(duration time.Duration, syncFunc func() error) {
+func (c *Favorite) Sync(duration time.Duration, syncFunc func() error) {
 	// 未完成的函数
 	t := time.NewTimer(duration)
 	go func(t *time.Timer) {
@@ -50,16 +50,22 @@ func (c *RCache) Sync(duration time.Duration, syncFunc func() error) {
 	}(t)
 }
 
-type RCache struct {
+type Favorite struct {
 	rdb *redis.Client
 	ctx context.Context
 }
 
-func NewDouyinRDB(rdb *redis.Client) *douyin.RDBMan {
+func NewDouyinRDB(addr, pwd string, db int) (*douyin.RDBMan, error) {
+	c := context.TODO()
+	rdb := redis.NewClient(&redis.Options{
+		Addr:     addr,
+		Password: pwd,
+		DB:       db,
+	})
 	return &douyin.RDBMan{
-		Favorite: &RCache{
+		Favorite: &Favorite{
 			rdb: rdb,
-			ctx: context.TODO(),
+			ctx: c,
 		},
-	}
+	}, nil
 }

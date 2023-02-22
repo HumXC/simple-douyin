@@ -57,7 +57,7 @@ func Douyin(engine *gin.Engine, c config.Douyin, storage douyin.StorageClient) {
 	if err != nil {
 		panic(err)
 	}
-	rdb, err := cache.NewDouyinRDB(nil)
+	rdb, err := cache.NewDouyinRDB(c.Redis.Addr, c.Redis.Password, c.Redis.DB)
 	if err != nil {
 		panic(err)
 	}
