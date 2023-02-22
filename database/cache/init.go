@@ -55,14 +55,11 @@ type RCache struct {
 	ctx context.Context
 }
 
-func NewDouyinRDB(rdb *redis.Client) (*douyin.RDBMan, error) {
-	if rdb == nil {
-		return &douyin.RDBMan{
-			Favorite: &RCache{
-				rdb: rdb,
-				ctx: context.TODO(),
-			},
-		}, nil
+func NewDouyinRDB(rdb *redis.Client) *douyin.RDBMan {
+	return &douyin.RDBMan{
+		Favorite: &RCache{
+			rdb: rdb,
+			ctx: context.TODO(),
+		},
 	}
-	return nil, nil
 }
