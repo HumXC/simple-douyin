@@ -59,6 +59,7 @@ func NewDouyin(g *gin.Engine, conf config.Douyin, db *douyin.DBMan, rdb *douyin.
 	favorite := douyin.Group("favorite")
 	favorite.Use(middlewares.NeedLogin())
 	favorite.POST("action/", handler.Favorite)
+	favorite.GET("list/", handler.FavoriteList)
 
 	return &DouYin{}
 }
