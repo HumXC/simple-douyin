@@ -44,17 +44,17 @@ func NewDouyinDB(dbType string, dsn string) (*douyin.DBMan, error) {
 		&model.Message{})
 
 	return &douyin.DBMan{
-		User:  &userMan{db: db},
-		Video: &videoMan{db: db},
-		ThumbsUp: &thumbsUpMan{
-			db: db,
+		User:  &UserMan{DB: db},
+		Video: &VideoMan{DB: db},
+		ThumbsUp: &ThumbsUpMan{
+			DB: db,
 		},
-		Comment: &commentMan{db: db},
+		Comment: &CommentMan{DB: db},
 		VideoJob: &videoJobMan{
 			db: db,
 		},
-		Message: &messageMan{
-			db: db,
+		Message: &MessageMan{
+			DB: db,
 		},
 	}, nil
 }
