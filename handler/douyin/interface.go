@@ -16,6 +16,10 @@ type DBMan struct {
 	VideoJob videos.VideoJobMan
 }
 type UserMan interface {
+	// 喜欢一个视频
+	Favorite(userID, videoID int64) error
+	// 返回喜欢视频的列表
+	FavoriteList(userID int64) []model.Video
 	// 返回粉丝数量
 	CountFollower(userID int64) int64
 	// 返回关注数量
@@ -32,9 +36,9 @@ type UserMan interface {
 	Follow(userId, followId int64) error
 	CancelFollow(userId, followId int64) error
 	// 获取关注者用户
-	QueryFollows(userID int64) *[]model.User
+	FollowList(userID int64) *[]model.User
 	// 获取粉丝用户
-	QueryFollowers(userID int64) *[]model.User
+	FollowerList(userID int64) *[]model.User
 	QueryFriendsById(userId int64, users *[]model.User) error
 }
 type VideoMan interface {

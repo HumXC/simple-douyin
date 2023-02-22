@@ -12,21 +12,35 @@ type UserMan struct {
 	DB *gorm.DB
 }
 
+func (u *UserMan) Favorite(userID, videoID int64) error {
+	hasID := u.DB.Model(&model.User{ID: userID}).
+		Where("video_id=?", videoID).
+		Association("Favorites").Count()
+	if hasID != 0 {
+		return nil
+	}
+	u.DB.Model(&model.User{
+		ID: userID,
+	}).Association("Favorites").Append(&model.Video{ID: videoID})
+	return nil
+}
+
+func (u *UserMan) FavoriteList(userID int64) (v []model.Video) {
+	u.DB.Model(&model.User{
+		ID: userID,
+	}).Association("Favorites").Find(&v)
+	return
+}
+
 // 返回粉丝数量
 func (u *UserMan) CountFollower(userID int64) int64 {
-	if userID == 0 {
-		return 0
-	}
 	var count int64 = 0
-	u.DB.Table("relations").Where("follow_id=?", userID).Select("follow_id").Count(&count)
+	u.DB.Table("follows").Where("follow_id=?", userID).Select("follow_id").Count(&count)
 	return count
 }
 
 // 返回关注数量
 func (u *UserMan) CountFollow(userID int64) int64 {
-	if userID == 0 {
-		return 0
-	}
 	return u.DB.Model(&model.User{
 		ID: userID,
 	}).Select("id").Association("Follows").Count()
@@ -35,7 +49,6 @@ func (u *UserMan) CountFollow(userID int64) int64 {
 // 返回 user1 是否关注了 user2
 // 如果 user1 关注了 user2，返回 true
 func (u *UserMan) IsFollow(user1, user2 int64) bool {
-	// TODO 是否可以引入 redis
 	if user1 == 0 {
 		return false
 	}
@@ -87,14 +100,17 @@ func (u *UserMan) QueryById(userId int64, user *model.User) error {
 	return err
 }
 
-func (u *UserMan) Follow(userId, followId int64) error {
-	// FIXME
-	return u.DB.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Exec("INSERT INTO `relations` (`user_id`,`follow_id`) VALUES (?,?)", userId, followId).Error; err != nil {
-			return err
-		}
+func (u *UserMan) Follow(userID, followId int64) error {
+	hasID := u.DB.Model(&model.User{ID: userID}).
+		Where("follow_id=?", followId).
+		Association("Follows").Count()
+	if hasID != 0 {
 		return nil
-	})
+	}
+	u.DB.Model(&model.User{
+		ID: userID,
+	}).Association("Follows").Append(&model.User{ID: followId})
+	return nil
 }
 
 func (u *UserMan) CancelFollow(userId, followId int64) error {
@@ -108,7 +124,7 @@ func (u *UserMan) CancelFollow(userId, followId int64) error {
 }
 
 // 获取关注者用户
-func (u *UserMan) QueryFollows(userID int64) *[]model.User {
+func (u *UserMan) FollowList(userID int64) *[]model.User {
 	result := make([]model.User, 0)
 	if userID == 0 {
 		return &result
@@ -120,18 +136,14 @@ func (u *UserMan) QueryFollows(userID int64) *[]model.User {
 }
 
 // 获取粉丝用户
-func (u *UserMan) QueryFollowers(userID int64) *[]model.User {
+func (u *UserMan) FollowerList(userID int64) *[]model.User {
 	result := make([]model.User, 0)
-	if userID == 0 {
-		return &result
-	}
 	// 能用就行
-	subQuery := u.DB.Table("relations").Where("follow_id=?", userID).Select("user_id")
-	u.DB.Model(&model.User{}).Omit("password").Where("id IN (?)", subQuery).Find(&result)
+	u.DB.Model(&model.User{ID: userID}).Omit("password").Association("Follows").Find(&result)
 	return &result
 }
 
-// Deprecated: 使用 QueryFollows
+// Deprecated: 使用 FollowList
 func (u *UserMan) QueryFollowsById(userId int64, users *[]model.User) error {
 	return u.DB.Table("users as u").
 		Select([]string{"id", "name", "follow_count", "follower_count"}).
@@ -139,7 +151,7 @@ func (u *UserMan) QueryFollowsById(userId int64, users *[]model.User) error {
 		Where("r.user_id=?", userId).Find(users).Error
 }
 
-// Deprecated: 使用 QueryFollowers
+// Deprecated: 使用 FollowerList
 func (u *UserMan) QueryFollowersById(userId int64, users *[]model.User) error {
 	return u.DB.Table("users as u").
 		Select([]string{"id", "name", "follow_count", "follower_count"}).

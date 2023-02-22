@@ -1,19 +1,33 @@
 package sqldb_test
 
 import (
-	"path"
 	"testing"
 
 	"github.com/HumXC/simple-douyin/database/sqldb"
 	"github.com/HumXC/simple-douyin/model"
 )
 
-func TestIsFollow(t *testing.T) {
-	douyinDB, err := sqldb.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"))
-	if err != nil {
-		t.Fatal(err)
+func TestFav(t *testing.T) {
+	db := NewDB()
+	u := sqldb.UserMan{
+		DB: db,
 	}
-	u := douyinDB.User
+	v := sqldb.VideoMan{
+		DB: db,
+	}
+	u.AddUser(&model.User{})
+	v.Put(model.Video{})
+	v.Put(model.Video{})
+	v.Put(model.Video{})
+	v.Put(model.Video{})
+	u.Favorite(1, 1)
+	u.Favorite(1, 2)
+	u.Favorite(1, 2)
+}
+func TestIsFollow(t *testing.T) {
+	u := sqldb.UserMan{
+		DB: NewDB(),
+	}
 	u.AddUser(&model.User{})
 	u.AddUser(&model.User{})
 	u.AddUser(&model.User{})
@@ -35,11 +49,9 @@ func TestIsFollow(t *testing.T) {
 	}
 }
 func TestCountFollowAndCountFollower(t *testing.T) {
-	douyinDB, err := sqldb.NewDouyinDB("sqlite", path.Join(TEST_DIR, "douyin.db"))
-	if err != nil {
-		t.Fatal(err)
+	u := sqldb.UserMan{
+		DB: NewDB(),
 	}
-	u := douyinDB.User
 	u.AddUser(&model.User{})
 	u.AddUser(&model.User{})
 	u.AddUser(&model.User{})
@@ -71,7 +83,7 @@ func TestCountFollowAndCountFollower(t *testing.T) {
 			{ID: 2},
 			{ID: 3},
 		}
-		got := *u.QueryFollows(1)
+		got := *u.FollowList(1)
 		if len(got) == 0 {
 			t.Errorf("居然找不到关注者: want:  %v", want)
 			return
@@ -95,7 +107,7 @@ func TestCountFollowAndCountFollower(t *testing.T) {
 			{ID: 3},
 		}
 
-		got := *u.QueryFollowers(2)
+		got := *u.FollowerList(2)
 		if len(got) == 0 {
 			t.Errorf("居然找不到粉丝: want:  %v", want)
 			return

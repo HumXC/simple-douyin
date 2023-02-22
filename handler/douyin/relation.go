@@ -86,7 +86,7 @@ func (h *Handler) FollowList(c *gin.Context) {
 		return
 	}
 	//在数据库查询关注的用户信息
-	follows := userMan.QueryFollows(userId)
+	follows := userMan.FollowList(userId)
 	userList := h.ConvertUsers(follows, false)
 	for i := 0; i < len(*userList); i++ {
 		(*userList)[i].IsFollow = h.DB.User.IsFollow(userId, (*userList)[i].Id)
@@ -114,7 +114,7 @@ func (h *Handler) FollowerList(c *gin.Context) {
 		return
 	}
 	//在数据库查询粉丝信息
-	followers := userMan.QueryFollowers(userId)
+	followers := userMan.FollowerList(userId)
 	userList := h.ConvertUsers(followers, false)
 	for i := 0; i < len(*userList); i++ {
 		(*userList)[i].IsFollow = h.DB.User.IsFollow(userId, (*userList)[i].Id)

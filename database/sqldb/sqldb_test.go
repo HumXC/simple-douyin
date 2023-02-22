@@ -10,8 +10,8 @@ import (
 	"gorm.io/gorm"
 )
 
-// 该包所有的测试文件都存在 "../test/model" 里
-const TEST_DIR = "../../../test/model"
+// 该包所有的测试文件都存在 "../test/database/sqldb" 里
+const TEST_DIR = "../../test/database/sqldb"
 
 func NewDB() *gorm.DB {
 	db, err := gorm.Open(
