@@ -112,6 +112,8 @@ type User struct {
 	IsFollow       bool   `json:"is_follow,omitempty"`
 	Avatar         string `json:"avatar,omitempty"`
 	Background     string `json:"background_image,omitempty"`
+	Message        string `json:"message,omitempty"`
+	MsgType        int64  `json:"msgType,omitempty"`
 }
 
 type Message struct {
