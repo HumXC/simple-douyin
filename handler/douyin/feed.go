@@ -26,6 +26,9 @@ func (h *Handler) Feed(num int) func(*gin.Context) {
 			return
 		}
 		videos := h.DB.Video.GetFeed(latestTime, num)
+		if len(videos) == 0 {
+			videos = h.DB.Video.GetFeed(0, num)
+		}
 		userID := c.GetInt64("user_id")
 		resp.VideoList = *h.ConvertVideos(&videos, userID, nil)
 		if len(videos) != 0 {

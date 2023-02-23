@@ -35,7 +35,7 @@ func (u *UserMan) Favorite(userID, videoID int64) error {
 func (u *UserMan) FavoriteList(userID int64) (v []model.Video) {
 	u.DB.Model(&model.User{
 		ID: userID,
-	}).Association("Favorites").Find(&v)
+	}).Association("Follows").Find(&v)
 	return
 }
 
@@ -146,7 +146,8 @@ func (u *UserMan) FollowList(userID int64) *[]model.User {
 func (u *UserMan) FollowerList(userID int64) *[]model.User {
 	result := make([]model.User, 0)
 	// 能用就行
-	u.DB.Model(&model.User{ID: userID}).Omit("password").Association("Follows").Find(&result)
+	subQuery := u.DB.Table("follows").Where("follow_id=?", userID).Select("user_id")
+	u.DB.Model(&model.User{}).Omit("password").Where("id IN (?)", subQuery).Find(&result)
 	return &result
 }
 
@@ -167,7 +168,7 @@ func (u *UserMan) QueryFollowersById(userId int64, users *[]model.User) error {
 }
 
 func (u *UserMan) QueryFriendsById(userId int64, users *[]model.User) error {
-	subQuery := u.DB.Raw("select a.follow_id from relations as a join relations b on a.user_id=b.follow_id and a.follow_id=b.user_id and a.user_id=?", userId)
+	subQuery := u.DB.Raw("select a.follow_id from follows as a join follows b on a.user_id=b.follow_id and a.follow_id=b.user_id and a.user_id=?", userId)
 	return u.DB.Model(&model.User{}).Where("id IN (?)", subQuery).Find(users).Error
 }
 
