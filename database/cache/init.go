@@ -32,7 +32,7 @@ type User struct {
 }
 
 func (c *User) Favorite(videoID, userID int64, actionType int32) error {
-	key := strconv.FormatInt(videoID, 10) + "." + strconv.FormatInt(userID, 10)
+	key := "douyin:favorite:" + strconv.FormatInt(userID, 10) + ":" + strconv.FormatInt(videoID, 10)
 	getAction, err := c.rdb.Get(c.ctx, key).Result()
 	if err == redis.Nil {
 		c.rdb.Set(c.ctx, key, 1, time.Hour*12)
@@ -58,23 +58,7 @@ func (c *User) Favorite(videoID, userID int64, actionType int32) error {
 // 实现
 func (c *Video) CountFavorite(videoID int64) int64 {
 	var count int
-	key := strconv.FormatInt(videoID, 10)
-	for {
-		keys, cursor, err := c.rdb.Scan(c.ctx, 0, key+"*", 0).Result()
-		if err != nil {
-			panic(fmt.Errorf(err.Error()))
-		}
-		count += len(keys)
-		if cursor == 0 {
-			break
-		}
-	}
-	return int64(count)
-}
-
-func (c *User) CountFavorite(userID int64) int64 {
-	var count int
-	key := strconv.FormatInt(userID, 10)
+	key := ":" + strconv.FormatInt(videoID, 10)
 	for {
 		keys, cursor, err := c.rdb.Scan(c.ctx, 0, "*"+key, 0).Result()
 		if err != nil {
@@ -88,11 +72,27 @@ func (c *User) CountFavorite(userID int64) int64 {
 	return int64(count)
 }
 
+func (c *User) CountFavorite(userID int64) int64 {
+	var count int
+	key := "douyin:favorite:" + strconv.FormatInt(userID, 10) + ":"
+	for {
+		keys, cursor, err := c.rdb.Scan(c.ctx, 0, key+"*", 0).Result()
+		if err != nil {
+			panic(fmt.Errorf(err.Error()))
+		}
+		count += len(keys)
+		if cursor == 0 {
+			break
+		}
+	}
+	return int64(count)
+}
+
 func (r *User) FavoriteList(userID int64) []int64 {
 	List := make([]int64, 0, 10)
-	key := strconv.FormatInt(userID, 10)
+	key := "douyin:favorite:" + strconv.FormatInt(userID, 10) + ":"
 	for {
-		keys, cursor, err := r.rdb.Scan(r.ctx, 0, "*"+key, 0).Result()
+		keys, cursor, err := r.rdb.Scan(r.ctx, 0, key+"*", 0).Result()
 		if err != nil {
 			panic(fmt.Errorf(err.Error()))
 		}
@@ -112,7 +112,7 @@ func (r *User) FavoriteList(userID int64) []int64 {
 }
 
 func (c *User) IsFavorite(userID, videoID int64) bool {
-	key := strconv.FormatInt(videoID, 10) + "." + strconv.FormatInt(userID, 10)
+	key := "douyin:favorite:" + strconv.FormatInt(userID, 10) + ":" + strconv.FormatInt(videoID, 10)
 	_, err := c.rdb.Get(c.ctx, key).Result()
 	if err == redis.Nil {
 		return false
