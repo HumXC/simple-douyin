@@ -23,7 +23,6 @@ func NewDB() *gorm.DB {
 		&model.User{},
 		&model.Video{},
 		&model.Comment{},
-		&model.ThumbsUp{},
 		&model.VideoJob{},
 		&model.Message{})
 	return db

@@ -49,32 +49,3 @@ func (h *Handler) FavoriteList(c *gin.Context) {
 	resp.VideoList = *h.ConvertVideos(&vs, userID, nil)
 	c.JSON(http.StatusOK, &resp)
 }
-
-// Deprecated Action 赞操作
-func (h *Handler) Action(c *gin.Context) {
-	videoId, _ := strconv.Atoi(c.Query("video_id"))
-	actionType, _ := strconv.Atoi(c.Query("action_type"))
-	userId := c.GetInt64("user_id")
-	action := h.DB.ThumbsUp
-	resp := BaseResponse()
-	defer c.JSON(http.StatusOK, &resp)
-	if videoId == 0 || actionType == 0 {
-		resp.Status(InvalidParams)
-		return
-	}
-	//取消点赞操作
-	if actionType == 2 {
-		err := action.ActionTypeChange(c, videoId, int(userId))
-		if err != nil {
-			resp.Status(StatusOtherError)
-			panic(fmt.Errorf("取消点赞错误: %w", err))
-		}
-		return
-	}
-	//点赞
-	err := action.ActionTypeAdd(c, videoId, int(userId))
-	if err != nil {
-		resp.Status(StatusOtherError)
-		panic(fmt.Errorf("点赞错误: %w", err))
-	}
-}

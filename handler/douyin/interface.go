@@ -3,7 +3,6 @@ package douyin
 import (
 	"github.com/HumXC/simple-douyin/handler/douyin/videos"
 	"github.com/HumXC/simple-douyin/model"
-	"github.com/gin-gonic/gin"
 )
 
 // 用于管理 SQL 数据库
@@ -12,7 +11,6 @@ type DBMan struct {
 	User     UserMan
 	Comment  CommentMan
 	Message  MessageMan
-	ThumbsUp ThumbsUpMan
 	VideoJob videos.VideoJobMan
 }
 type UserMan interface {
@@ -62,11 +60,6 @@ type MessageMan interface {
 	AddMessage(message *model.Message) error
 	//查询createAt大于time的所有二人聊天记录
 	QueryChat(fromUserId int64, toUserId int64, time string, messages *[]model.Message) error
-}
-type ThumbsUpMan interface {
-	Action(videoID, userID int64, actionType int32) error
-	ActionTypeChange(c *gin.Context, videoId int, userId int) error
-	ActionTypeAdd(c *gin.Context, videoId int, userId int) error
 }
 
 // 用于管理 Redis

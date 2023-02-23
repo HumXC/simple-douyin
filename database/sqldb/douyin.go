@@ -39,7 +39,6 @@ func NewDouyinDB(dbType string, dsn string) (*douyin.DBMan, error) {
 		&model.User{},
 		&model.Video{},
 		&model.Comment{},
-		&model.ThumbsUp{},
 		&model.VideoJob{},
 		&model.Message{})
 
@@ -47,11 +46,8 @@ func NewDouyinDB(dbType string, dsn string) (*douyin.DBMan, error) {
 		// 此处报错一般可能是因为
 		// handler/douyin/interface.go 中增加了新的接口
 		// 但是并未实现，所以得去对应的结构体里实现接口
-		User:  &UserMan{DB: db},
-		Video: &VideoMan{DB: db},
-		ThumbsUp: &ThumbsUpMan{
-			DB: db,
-		},
+		User:    &UserMan{DB: db},
+		Video:   &VideoMan{DB: db},
 		Comment: &CommentMan{DB: db},
 		VideoJob: &videoJobMan{
 			db: db,

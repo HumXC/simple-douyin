@@ -13,13 +13,6 @@ type Comment struct {
 	gorm.Model        //通用字段
 }
 
-type ThumbsUp struct {
-	gorm.Model
-	UserId     int64
-	VideoId    int64
-	ActionType int32
-}
-
 type Message struct {
 	FromUserId int64 //发送者ID
 	ToUserId   int64 //接收者ID
