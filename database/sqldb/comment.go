@@ -76,7 +76,7 @@ func (c *CommentMan) QueryCommentListByVideoId(videoId int64, comments *[]model.
 	if comments == nil {
 		return errors.New("QueryCommentListByVideoId comments空指针")
 	}
-	if err := c.DB.Model(&model.Comment{}).Where("video_id=?", videoId).Find(comments).Error; err != nil {
+	if err := c.DB.Model(&model.Comment{}).Where("video_id=?", videoId).Order("created_at DESC").Find(comments).Error; err != nil {
 		return err
 	}
 	return nil

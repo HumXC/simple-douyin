@@ -120,7 +120,7 @@ func (h *Handler) CommentList(c *gin.Context) {
 			Id:         int64(comment.Model.ID),
 			User:       userInfo,
 			Content:    comment.Content,
-			CreateDate: time.Now().Format("2006-01-02 15:04:05"),
+			CreateDate: comment.CreatedAt.Format("2006-01-02 15:04:05"),
 		}
 		commentList[idx] = commentData
 		idx = idx + 1
