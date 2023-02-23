@@ -41,7 +41,9 @@ func (c *User) Favorite(userID, videoID int64, actionType int32) error {
 	}
 	intAction, err := strconv.ParseInt(getAction, 10, 32)
 	if int32(intAction) == actionType {
-		return fmt.Errorf("重复操作: %d", actionType)
+		// 重复操作
+		// return fmt.Errorf("重复操作: %d", actionType)
+		return nil
 	}
 	if err != redis.Nil && err != nil {
 		return fmt.Errorf("喜欢错误： %w", err)

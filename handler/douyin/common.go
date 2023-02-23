@@ -28,6 +28,7 @@ const (
 	StatusFailedCommentList
 	StatusVideoHasNoComment
 	StatusFailedChatList
+	StatusCanNotLikeSelf
 	StatusOtherError = -1
 )
 
@@ -50,6 +51,7 @@ func init() {
 	StatusMsgs[StatusFailedCommentList] = "拉取评论列表失败"
 	StatusMsgs[StatusVideoHasNoComment] = "该视频暂无评论"
 	StatusMsgs[StatusFailedChatList] = "拉取聊天记录失败"
+	StatusMsgs[StatusCanNotLikeSelf] = "自己不能自己关注自己"
 }
 
 // 所有 gin.HandlerFunc 都应该绑定到 Handler 上
