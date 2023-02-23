@@ -144,6 +144,7 @@ func (h *Handler) ConvertUser(u model.User, isFollow bool) User {
 		Avatar:        h.StorageClient.GetURL("avatars", u.Avatar),
 		Background:    h.StorageClient.GetURL("backgrounds", u.Background),
 		WorkCount:     h.DB.User.CountPublished(u.ID),
+		FavoriteCount: h.RDB.User.CountFavorite(u.ID),
 	}
 }
 
