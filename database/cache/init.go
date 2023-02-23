@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/HumXC/simple-douyin/handler/douyin"
@@ -31,7 +32,7 @@ type User struct {
 	ctx context.Context
 }
 
-func (c *User) Favorite(videoID, userID int64, actionType int32) error {
+func (c *User) Favorite(userID, videoID int64, actionType int32) error {
 	key := "douyin:favorite:" + strconv.FormatInt(userID, 10) + ":" + strconv.FormatInt(videoID, 10)
 	getAction, err := c.rdb.Get(c.ctx, key).Result()
 	if err == redis.Nil {
@@ -50,7 +51,7 @@ func (c *User) Favorite(videoID, userID int64, actionType int32) error {
 	case 1:
 		c.rdb.Incr(c.ctx, key)
 	case 2:
-		c.rdb.Decr(c.ctx, key)
+		c.rdb.Del(c.ctx, key)
 	}
 	return nil
 }
@@ -97,12 +98,11 @@ func (r *User) FavoriteList(userID int64) []int64 {
 			panic(fmt.Errorf(err.Error()))
 		}
 		for _, kkey := range keys {
-			svalue, err := r.rdb.Get(r.ctx, kkey).Result()
-			ivalue, err := strconv.ParseInt(svalue, 10, 64)
-			List = append(List, ivalue)
+			vid, err := strconv.ParseInt(strings.TrimPrefix(kkey, key), 10, 64)
 			if err != nil {
 				panic(fmt.Errorf(err.Error()))
 			}
+			List = append(List, vid)
 		}
 		if cursor == 0 {
 			break
