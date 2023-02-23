@@ -60,6 +60,8 @@ type MessageMan interface {
 	AddMessage(message *model.Message) error
 	//查询createAt大于time的所有二人聊天记录
 	QueryChat(fromUserId int64, toUserId int64, time string, messages *[]model.Message) error
+	//查询最新消息记录
+	QueryNewMsg(userId1 int64, userId2 int64, message *model.Message) error
 }
 
 // 用于管理 Redis
