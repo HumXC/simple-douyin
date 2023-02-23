@@ -121,13 +121,11 @@ func (u *UserMan) Follow(userID, followId int64) error {
 }
 
 func (u *UserMan) CancelFollow(userId, followId int64) error {
-	// FIXME
-	return u.DB.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Exec("DELETE FROM `relations` WHERE user_id=? AND follow_id=?", userId, followId).Error; err != nil {
-			return err
-		}
-		return nil
-	})
+	type follow struct {
+		UserID   int64
+		FollowID int64
+	}
+	return u.DB.Table("follows").Where("user_id=? AND follow_id=?", userId, followId).Delete(&follow{}).Error
 }
 
 // 获取关注者用户
