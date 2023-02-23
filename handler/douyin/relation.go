@@ -165,6 +165,11 @@ func (h *Handler) friends(id int64) ([]User, error) {
 	for _, v := range friends {
 		message := model.Message{}
 		h.DB.Message.QueryNewMsg(id, v.ID, &message)
+		//该最新消息为当前请求用户发送的消息
+		msgType := 0
+		if message.FromUserId == id {
+			msgType = 1
+		}
 		follower := User{
 			Id:            v.ID,
 			Name:          v.Name,
@@ -174,6 +179,7 @@ func (h *Handler) friends(id int64) ([]User, error) {
 			Avatar:        h.StorageClient.GetURL("avatars", v.Avatar),
 			Background:    h.StorageClient.GetURL("backgrounds", v.Background),
 			Message:       message.Content,
+			MsgType:       int64(msgType),
 		}
 		UserList = append(UserList, follower)
 	}
