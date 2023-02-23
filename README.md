@@ -19,10 +19,9 @@
 第一次运行会在可执行文件目录下生成 config.yaml 文件，一个配置文件如下所示
 
 ```yaml
+# douyin 服务的监听地址
+serve-addr: 192.168.80.148:11451
 douyin:
-    # douyin 服务的监听地址
-    serve-addr: 192.168.80.148:11451
-
     # 只支持 sqlite 和 mysql，如果使用 sqlite，dsn 就是数据库文件的名称
     sql:
         # type: sqlite
@@ -54,8 +53,8 @@ douyin:
 storage:
     # 存储数据的根文件夹
     data-dir: Data
-    # 服务的监听地址，此地址必须为明确的 ip，不能是 ":11452"
-    serve-addr: 192.168.80.148:11452
+    # 服务的监听地址，用于拼接 url，见 service/storage.go 105 行
+    pre-url: example.com:11451
     # 请求 /storage 时会计算 token + 文件路径 的 md5 对文件链接进行混淆
     # 例如请求文件 videos/a.mp4 而在请求时可能就会变成 6468737561696b766....
     # 从而不会将存储的文件路径暴露在外
