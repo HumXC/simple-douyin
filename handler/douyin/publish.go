@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/HumXC/simple-douyin/handler/douyin/videos"
@@ -50,12 +49,6 @@ func VideoButcherFinishFunc(h *Handler) videos.ButcherFinidhFunc {
 	}
 }
 
-var buf = sync.Pool{
-	New: func() any {
-		return make([]byte, 512)
-	},
-}
-
 func (h *Handler) PublishAction(c *gin.Context) {
 	resp := BaseResponse()
 	userID := c.GetInt64("user_id")
@@ -81,10 +74,10 @@ func (h *Handler) PublishAction(c *gin.Context) {
 	_, _ = io.Copy(file, data)
 	_, _ = file.Seek(0, io.SeekStart)
 	// 判断文件是否为视频
-	b := buf.Get().([]byte)
+	b := h.Buf.Get().([]byte)
+	defer h.Buf.Put(b)
 	_, _ = file.Read(b)
 	mimeType := http.DetectContentType(b)
-	buf.Put(b)
 	// 上传的文件不是视频
 	if !strings.HasPrefix(mimeType, "video") {
 		resp.Status(StatusUploadNotAVideo)

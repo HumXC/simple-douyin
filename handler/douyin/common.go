@@ -1,6 +1,8 @@
 package douyin
 
 import (
+	"sync"
+
 	"github.com/HumXC/simple-douyin/handler/douyin/videos"
 	"github.com/HumXC/simple-douyin/model"
 )
@@ -62,6 +64,8 @@ type Handler struct {
 	VideoButcher  *videos.Butcher
 	Avatars       []string
 	Backgrounds   []string
+	// 用于判断文件是否为视频，请分配 512 大小的 []byte
+	Buf sync.Pool
 }
 
 type Response struct {

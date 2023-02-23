@@ -1,6 +1,8 @@
 package service
 
 import (
+	"sync"
+
 	"github.com/HumXC/simple-douyin/config"
 	"github.com/HumXC/simple-douyin/handler/douyin"
 	"github.com/HumXC/simple-douyin/handler/douyin/videos"
@@ -24,6 +26,11 @@ func NewDouyin(g *gin.Engine, conf config.Douyin, db *douyin.DBMan, rdb *douyin.
 		conf.VideoButCherMaxJob,
 		douyin.VideoButcherFinishFunc(&handler),
 	)
+	handler.Buf = sync.Pool{
+		New: func() any {
+			return make([]byte, 512)
+		},
+	}
 
 	douyin := g.Group("douyin")
 	douyin.Use(middlewares.JWTMiddleWare())
