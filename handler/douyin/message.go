@@ -88,17 +88,6 @@ func (h *Handler) MessageChatListAction(c *gin.Context) {
 		resp.MessageList = messageList
 		return
 	}
-
-	//二者未发新消息,返回当前最新消息的时间戳,防止前端重复消费
-	defaultMsg := make([]Message, 1)
-	defaultMsg[0] = Message{
-		Id:         0,
-		Content:    "",
-		ToUserId:   toUserId,
-		FromUserId: fromUserId,
-		CreateTime: preMsgTime,
-	}
-	resp.MessageList = defaultMsg
 	return
 }
 
