@@ -69,7 +69,6 @@ func (h *Handler) MessageChatListAction(c *gin.Context) {
 		resp.Status(StatusOtherError)
 		return
 	}
-	log.Println("上次最新消息时间:", preMsgTime)
 	var messages []model.Message
 
 	time := time.Unix(preMsgTime, 0).Format("2006-01-02 15:04:05")
@@ -78,7 +77,6 @@ func (h *Handler) MessageChatListAction(c *gin.Context) {
 	err = messageMan.QueryChat(fromUserId, toUserId, time, &messages) //获取时间大于time的聊天记录
 	if err != nil {
 		resp.Status(StatusFailedChatList)
-		log.Println("拉取聊天记录失败", err.Error())
 		return
 	}
 
