@@ -37,7 +37,7 @@ type Redis struct {
 }
 type Storage struct {
 	DataDir string `yaml:"data-dir"`
-	PreURL  string `yaml:"serve-addr"`
+	PreUrl  string `yaml:"pre-url"`
 	Token   string `yaml:"token"`
 }
 
