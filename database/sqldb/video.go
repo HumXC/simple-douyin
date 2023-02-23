@@ -40,7 +40,7 @@ func (v *VideoMan) GetFeed(latestTime int64, num int) []model.Video {
 		num = 30
 	}
 	videos := make([]model.Video, 0, num)
-	v.DB.Order("time DESC").Where("time>?", latestTime).Debug().Find(&videos)
+	v.DB.Order("time DESC").Where("time>?", latestTime).Find(&videos)
 	return videos
 }
 
