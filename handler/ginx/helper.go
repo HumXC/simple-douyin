@@ -1,4 +1,4 @@
-package helper
+package ginx
 
 import (
 	"fmt"
@@ -18,7 +18,7 @@ var myKey = []byte("douyin")
 func GenerateToken(userId int64) (string, error) {
 	expirationTime := time.Now().Add(7 * 24 * time.Hour)
 	UserClaim := UserClaims{
-		UserId:         userId,
+		UserId: userId,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expirationTime.Unix(),
 		},

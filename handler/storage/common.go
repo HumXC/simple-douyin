@@ -7,7 +7,6 @@ import (
 	"path"
 	"sync"
 
-	"github.com/HumXC/simple-douyin/helper"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,6 +26,10 @@ func NewHandler(dataDir string, bufferSize uint) *Handler {
 		},
 	}
 }
+func IsFileExit(file string) bool {
+	_, err := os.Stat(file)
+	return err == nil
+}
 
 // 读取请求里的文件路径, 上传存储在本地的文件
 func (h *Handler) File(pool *sync.Map) func(*gin.Context) {
@@ -39,7 +42,7 @@ func (h *Handler) File(pool *sync.Map) func(*gin.Context) {
 			return
 		}
 		fileName := path.Join(h.dataDir, file)
-		if !helper.IsFileExit(fileName) {
+		if !IsFileExit(fileName) {
 			c.Status(http.StatusNotFound)
 			return
 		}

@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/HumXC/simple-douyin/handler/douyin"
-	"github.com/HumXC/simple-douyin/helper"
+	"github.com/HumXC/simple-douyin/handler/ginx"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,7 +23,7 @@ func JWTMiddleWare() gin.HandlerFunc {
 			return
 		}
 		//验证token
-		tokenStruck, err := helper.AnalyseToken(tokenStr)
+		tokenStruck, err := ginx.AnalyseToken(tokenStr)
 		if err != nil {
 			resp := douyin.BaseResponse()
 			resp.Status(douyin.StatusAuthFailed)

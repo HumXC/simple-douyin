@@ -1,10 +1,11 @@
 package douyin
 
 import (
+	"math/rand"
 	"net/http"
 	"unicode/utf8"
 
-	"github.com/HumXC/simple-douyin/helper"
+	"github.com/HumXC/simple-douyin/handler/ginx"
 	"github.com/HumXC/simple-douyin/model"
 	"github.com/gin-gonic/gin"
 )
@@ -66,7 +67,7 @@ func (h *Handler) UserLogin(c *gin.Context) {
 	//获取user_id
 	userId := userMan.GetIdByName(username)
 	//生成token
-	token, err := helper.GenerateToken(userId)
+	token, err := ginx.GenerateToken(userId)
 	if err != nil {
 		resp.Status(StatusOtherError)
 		return
@@ -74,6 +75,17 @@ func (h *Handler) UserLogin(c *gin.Context) {
 	//登录成功，包装resp
 	resp.UserId = userId
 	resp.Token = token
+}
+
+// 从切片里随机选择一个元素
+func PickOne[T any](list []T) T {
+	result := *new(T)
+	if len(list) == 0 {
+		return result
+	}
+	i := rand.Intn(len(list))
+	result = list[i]
+	return result
 }
 
 func (h *Handler) UserRegister(c *gin.Context) {
@@ -117,8 +129,8 @@ func (h *Handler) UserRegister(c *gin.Context) {
 	user := model.User{
 		Name:       username,
 		Password:   password,
-		Avatar:     helper.PickOne(h.Avatars),
-		Background: helper.PickOne(h.Backgrounds),
+		Avatar:     PickOne(h.Avatars),
+		Background: PickOne(h.Backgrounds),
 	}
 	if err := userMan.AddUser(&user); err != nil {
 		resp.Status(StatusOtherError)
@@ -126,7 +138,7 @@ func (h *Handler) UserRegister(c *gin.Context) {
 	}
 	//生成user_id和token
 	userId := user.ID
-	token, err := helper.GenerateToken(userId)
+	token, err := ginx.GenerateToken(userId)
 	if err != nil {
 		resp.Status(StatusOtherError)
 		return
