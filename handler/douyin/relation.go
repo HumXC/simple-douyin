@@ -46,7 +46,7 @@ func (h *Handler) RelationAction(c *gin.Context) {
 	}
 	//自己不能关注自己
 	if userId == followId {
-		resp.Status(StatusOtherError)
+		resp.Status(StatusCanNotLikeSelf)
 		return
 	}
 

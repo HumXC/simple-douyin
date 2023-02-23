@@ -4,7 +4,7 @@ import (
 	"github.com/HumXC/simple-douyin/config"
 	"github.com/HumXC/simple-douyin/handler/douyin"
 	"github.com/HumXC/simple-douyin/handler/douyin/videos"
-	"github.com/HumXC/simple-douyin/middlewares"
+	"github.com/HumXC/simple-douyin/handler/middlewares"
 	"github.com/gin-gonic/gin"
 )
 

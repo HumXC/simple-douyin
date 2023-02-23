@@ -22,15 +22,13 @@ type Message struct {
 
 type User struct {
 	gorm.Model
-	ID             int64 `gorm:"primarykey"`
-	Name           string
-	Password       string
-	TotalFavorited int64
-	FavoriteCount  int64
-	Avatar         string
-	Background     string
-	Favorites      []Video `gorm:"many2many:favorites"`
-	Follows        []User  `gorm:"many2many:follows"`
+	ID         int64 `gorm:"primarykey"`
+	Name       string
+	Password   string
+	Avatar     string
+	Background string
+	Favorites  []Video `gorm:"many2many:favorites"`
+	Follows    []User  `gorm:"many2many:follows"`
 }
 
 type VideoJob struct {
