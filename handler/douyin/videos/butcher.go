@@ -137,7 +137,6 @@ func (b *Butcher) do() {
 				if err == nil {
 					b.db.Rm(job.ID)
 				}
-				b.db.Rm(job.ID)
 				_ = <-b.working
 			}(job)
 		}
