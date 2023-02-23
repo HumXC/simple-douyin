@@ -32,21 +32,10 @@ func main() {
 
 	// 初始化两个服务，其中 douyin 服务依赖 storage 服务
 	// 如果配置里两个服务的 ServeAddr 相同，就用同一个 gin.Engine,否则使用两个 gin.Engine 实例
-	var storageEngine *gin.Engine = NewEngine()
-	var douyinEngine *gin.Engine = storageEngine
-	if conf.Douyin.ServeAddr != conf.Storage.ServeAddr {
-		douyinEngine = NewEngine()
-	}
-
-	storageClient := Storage(storageEngine, conf.Storage)
-	Douyin(douyinEngine, conf.Douyin, storageClient)
-
-	// 另开个协程抛跑 storage 服务
-	go func() {
-		panic(storageEngine.Run(conf.Storage.ServeAddr))
-	}()
-
-	panic(douyinEngine.Run(conf.Douyin.ServeAddr))
+	var engine *gin.Engine = NewEngine()
+	storageClient := Storage(engine, conf.Storage)
+	Douyin(engine, conf.Douyin, storageClient)
+	panic(engine.Run(conf.ServeAddr))
 }
 
 func NewEngine() *gin.Engine {

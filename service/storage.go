@@ -102,7 +102,7 @@ func NewStorage(g *gin.Engine, conf config.Storage) *Storage {
 		sum := md5.Sum([]byte(conf.Token + filePath))
 		sumStr := hex.EncodeToString(sum)
 		pool.Store(sumStr, filePath)
-		payh := "http://" + conf.ServeAddr + "/storage/" + sumStr
+		payh := "http://" + conf.PreURL + "/storage/" + sumStr
 		return payh
 	}
 	return s

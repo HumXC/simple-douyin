@@ -9,13 +9,13 @@ import (
 )
 
 type Config struct {
-	Douyin  Douyin  `yaml:"douyin"`
-	Storage Storage `yaml:"storage"`
+	ServeAddr string  `yaml:"serve-addr"`
+	Douyin    Douyin  `yaml:"douyin"`
+	Storage   Storage `yaml:"storage"`
 }
 type Douyin struct {
-	ServeAddr string `yaml:"serve-addr"`
-	SQL       SQL    `yaml:"sql"`
-	Redis     Redis  `yaml:"redis"`
+	SQL   SQL   `yaml:"sql"`
+	Redis Redis `yaml:"redis"`
 	// feed 流一次推送的视频个数，最大 30
 	FeedNum int `yaml:"feed-num"`
 	// 视频屠夫最大同时压缩视频的数量
@@ -36,9 +36,9 @@ type Redis struct {
 	DB       int    `yaml:"db"`
 }
 type Storage struct {
-	DataDir   string `yaml:"data-dir"`
-	ServeAddr string `yaml:"serve-addr"`
-	Token     string `yaml:"token"`
+	DataDir string `yaml:"data-dir"`
+	PreURL  string `yaml:"serve-addr"`
+	Token   string `yaml:"token"`
 }
 
 // 默认配置
