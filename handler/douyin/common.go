@@ -73,7 +73,7 @@ type Response struct {
 	StatusMsg  string `json:"status_msg,omitempty"`
 }
 
-// 返回一个状态码 200 的 Response
+// 返回一个状态码 0 的 Response
 func BaseResponse() Response {
 	return Response{
 		StatusCode: StatusOK,

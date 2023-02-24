@@ -35,7 +35,7 @@ func (u *UserMan) Favorite(userID, videoID int64) error {
 func (u *UserMan) FavoriteList(userID int64) (v []model.Video) {
 	u.DB.Model(&model.User{
 		ID: userID,
-	}).Association("Follows").Find(&v)
+	}).Association("Favorites").Find(&v)
 	return
 }
 
