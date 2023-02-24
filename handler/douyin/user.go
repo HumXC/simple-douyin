@@ -20,6 +20,7 @@ func (h *Handler) User(c *gin.Context) {
 		Response: BaseResponse(),
 	}
 	defer func() {
+		fmt.Printf("用户： %v", resp)
 		c.JSON(http.StatusOK, resp)
 	}()
 
