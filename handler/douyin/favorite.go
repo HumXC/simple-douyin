@@ -21,11 +21,11 @@ func (h *Handler) Favorite(c *gin.Context) {
 	resp := BaseResponse()
 	defer c.JSON(http.StatusOK, &resp)
 	if videoId == 0 || actionType == 0 {
-		resp.Status(InvalidParams)
+		resp.Status(StatusInvalidParams)
 		return
 	}
 	if actionType != 1 && actionType != 2 {
-		resp.Status(InvalidParams)
+		resp.Status(StatusInvalidParams)
 		return
 	}
 	err = h.RDB.User.Favorite(userId, videoId, int32(actionType))

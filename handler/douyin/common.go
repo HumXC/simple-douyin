@@ -22,8 +22,8 @@ const (
 	StatusUploadNotAVideo
 	StatusFailedToFetchVideo
 	StatusNeedLogin
-	InvalidParams
-	UnKnownActionType
+	StatusInvalidParams
+	StatusUnKnownActionType
 	StatusFailedPostComment
 	StatusCommentNotFound
 	StatusFailedDelComment
@@ -45,8 +45,8 @@ func init() {
 	StatusMsgs[StatusUploadNotAVideo] = "上传的文件不是视频"
 	StatusMsgs[StatusFailedToFetchVideo] = "获取视频列表失败"
 	StatusMsgs[StatusNeedLogin] = "需要登录"
-	StatusMsgs[InvalidParams] = "参数错误"
-	StatusMsgs[UnKnownActionType] = "未知操作类型"
+	StatusMsgs[StatusInvalidParams] = "参数错误"
+	StatusMsgs[StatusUnKnownActionType] = "未知操作类型"
 	StatusMsgs[StatusFailedPostComment] = "发布评论失败"
 	StatusMsgs[StatusCommentNotFound] = "未找到该评论"
 	StatusMsgs[StatusFailedDelComment] = "删除评论失败"

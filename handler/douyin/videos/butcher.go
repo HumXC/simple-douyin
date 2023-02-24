@@ -32,7 +32,7 @@ type Job struct {
 }
 
 // 用于将压缩视频以及截取封面
-// 工作过程是异步的，每完成一个任务都会调用对应的 WhenFinish
+// 工作过程是异步的，每完成一个任务都会调用对应的 finish
 type Butcher struct {
 	db      VideoJobMan
 	tasks   []Job // 任务栈

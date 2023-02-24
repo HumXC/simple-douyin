@@ -37,17 +37,15 @@ func NewDouyin(g *gin.Engine, conf config.Douyin, db *douyin.DBMan, rdb *douyin.
 	douyin.GET("feed", handler.Feed(conf.FeedNum))
 	douyin.POST("user/register/", middlewares.PwdHashMiddleWare(), handler.UserRegister)
 	douyin.POST("user/login/", handler.UserLogin)
-	douyin.GET("user/",
-		middlewares.NeedLogin(),
-		handler.User,
-	)
+	douyin.GET("user/", middlewares.NeedLogin(), handler.User)
+
 	comment := douyin.Group("comment")
 	comment.Use(middlewares.NeedLogin())
-	comment.POST("action/", middlewares.JWTMiddleWare(), handler.CommentAction)
+	comment.POST("action/", handler.CommentAction)
 	comment.GET("list/", handler.CommentList)
 
 	message := douyin.Group("message")
-	message.Use(middlewares.NeedLogin(), middlewares.JWTMiddleWare())
+	message.Use(middlewares.NeedLogin())
 	message.POST("action/", handler.MessageAction)
 	message.GET("chat/", handler.MessageChatListAction)
 

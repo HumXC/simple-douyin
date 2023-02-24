@@ -1,12 +1,13 @@
 package douyin
 
 import (
-	"github.com/HumXC/simple-douyin/model"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/HumXC/simple-douyin/model"
+	"github.com/gin-gonic/gin"
 )
 
 func (h *Handler) MessageAction(c *gin.Context) {
@@ -40,7 +41,7 @@ func (h *Handler) MessageAction(c *gin.Context) {
 			return
 		}
 	} else {
-		resp.Status(UnKnownActionType)
+		resp.Status(StatusUnKnownActionType)
 		log.Println("未定义的操作类型")
 	}
 }
