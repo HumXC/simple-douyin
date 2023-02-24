@@ -1,6 +1,7 @@
 package middlewares
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -52,6 +53,7 @@ func NeedLogin() gin.HandlerFunc {
 			resp := douyin.BaseResponse()
 			resp.Status(douyin.StatusNeedLogin)
 			c.JSON(http.StatusOK, resp)
+			fmt.Println("未登录请求")
 			c.Abort()
 		}
 	}
