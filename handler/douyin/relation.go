@@ -78,7 +78,11 @@ func (h *Handler) FollowList(c *gin.Context) {
 		c.JSON(http.StatusOK, resp)
 	}()
 
-	userId := c.GetInt64("user_id")
+	userId, err := strconv.ParseInt(c.Query("user_id"), 10, 64)
+	if err != nil {
+		resp.Status(StatusInvalidParams)
+		return
+	}
 	userMan := h.DB.User
 	//用户不存在
 	if !userMan.IsExistWithId(userId) {
@@ -106,7 +110,11 @@ func (h *Handler) FollowerList(c *gin.Context) {
 		c.JSON(http.StatusOK, resp)
 	}()
 
-	userId := c.GetInt64("user_id")
+	userId, err := strconv.ParseInt(c.Query("user_id"), 10, 64)
+	if err != nil {
+		resp.Status(StatusInvalidParams)
+		return
+	}
 	userMan := h.DB.User
 	//用户不存在
 	if !userMan.IsExistWithId(userId) {

@@ -40,8 +40,7 @@ func NewDouyin(g *gin.Engine, conf config.Douyin, db *douyin.DBMan, rdb *douyin.
 	douyin.GET("user/", middlewares.NeedLogin(), handler.User)
 
 	comment := douyin.Group("comment")
-	comment.Use(middlewares.NeedLogin())
-	comment.POST("action/", handler.CommentAction)
+	comment.POST("action/", middlewares.NeedLogin(), handler.CommentAction)
 	comment.GET("list/", handler.CommentList)
 
 	message := douyin.Group("message")
@@ -54,15 +53,13 @@ func NewDouyin(g *gin.Engine, conf config.Douyin, db *douyin.DBMan, rdb *douyin.
 	publish.GET("list/", handler.PublishList)
 
 	relation := douyin.Group("relation")
-	relation.Use(middlewares.NeedLogin())
-	relation.POST("action/", handler.RelationAction)
+	relation.POST("action/", middlewares.NeedLogin(), handler.RelationAction)
 	relation.GET("/follow/list/", handler.FollowList)
 	relation.GET("/follower/list/", handler.FollowerList)
-	relation.GET("/friend/list/", handler.FriendList)
+	relation.GET("/friend/list/", middlewares.NeedLogin(), handler.FriendList)
 
 	favorite := douyin.Group("favorite")
-	favorite.Use(middlewares.NeedLogin())
-	favorite.POST("action/", handler.Favorite)
+	favorite.POST("action/", middlewares.NeedLogin(), handler.Favorite)
 	favorite.GET("list/", handler.FavoriteList)
 
 	return &DouYin{}

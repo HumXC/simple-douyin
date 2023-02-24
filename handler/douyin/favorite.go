@@ -43,7 +43,11 @@ func (h *Handler) FavoriteList(c *gin.Context) {
 	resp := Resp{
 		Response: BaseResponse(),
 	}
-	userID := c.GetInt64("user_id")
+	userID, err := strconv.ParseInt(c.Query("user_id"), 10, 64)
+	if err != nil {
+		resp.Status(StatusInvalidParams)
+		return
+	}
 	vsID := h.RDB.User.FavoriteList(userID)
 	vs := h.DB.Video.GetByIDs(vsID)
 	resp.VideoList = *h.ConvertVideos(&vs, userID, nil)
