@@ -50,8 +50,7 @@ func NewDouyin(g *gin.Engine, conf config.Douyin, db *douyin.DBMan, rdb *douyin.
 	message.GET("chat/", handler.MessageChatListAction)
 
 	publish := douyin.Group("publish")
-	publish.Use(middlewares.NeedLogin())
-	publish.POST("action/", handler.PublishAction)
+	publish.POST("action/", middlewares.NeedLogin(), handler.PublishAction)
 	publish.GET("list/", handler.PublishList)
 
 	relation := douyin.Group("relation")

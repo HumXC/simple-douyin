@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -99,9 +100,13 @@ func (h *Handler) PublishList(c *gin.Context) {
 	defer func() {
 		c.JSON(http.StatusOK, resp)
 	}()
-	userID := c.GetInt64("user_id")
+	userID, err := strconv.ParseInt(c.Query("user_id"), 10, 64)
+	if err != nil {
+		resp.Status(StatusInvalidParams)
+		return
+	}
 	u := model.User{}
-	err := h.DB.User.QueryById(userID, &u)
+	err = h.DB.User.QueryById(userID, &u)
 	if err != nil {
 		resp.Status(StatusOtherError)
 		panic(fmt.Errorf("无法获取用户 [%d] : %w", userID, err))
