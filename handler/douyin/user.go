@@ -57,13 +57,13 @@ func (h *Handler) UserLogin(c *gin.Context) {
 
 	//用户不存在
 	if ok := userMan.IsExistWithName(username); !ok {
-		resp.Status(StatusAuthFailed)
+		resp.Status(StatusUserNotFound)
 		return
 	}
 	//验证用户名和密码
 	if err := userMan.CheckNameAndPwd(username, password); err != nil {
 		resp.Status(StatusOtherError)
-		return
+		panic(fmt.Errorf("验证用户密码失败: %w", err))
 	}
 	//获取user_id
 	userId := userMan.GetIdByName(username)
@@ -71,7 +71,7 @@ func (h *Handler) UserLogin(c *gin.Context) {
 	token, err := ginx.GenerateToken(userId)
 	if err != nil {
 		resp.Status(StatusOtherError)
-		return
+		panic(fmt.Errorf("生成 token 失败: %w", err))
 	}
 	//登录成功，包装resp
 	resp.UserId = userId
