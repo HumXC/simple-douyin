@@ -49,6 +49,7 @@ func (h *Handler) UserLogin(c *gin.Context) {
 	}
 	defer func() {
 		c.JSON(http.StatusOK, resp)
+		fmt.Printf("%v", resp)
 	}()
 
 	userMan := h.DB.User
