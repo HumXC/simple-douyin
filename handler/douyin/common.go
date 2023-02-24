@@ -31,6 +31,10 @@ const (
 	StatusVideoHasNoComment
 	StatusFailedChatList
 	StatusCanNotLikeSelf
+	StatusCanNotGetHashPwd
+	StatusUserExist
+	StatusEmptyUser
+	StatusUserNameSoLong
 	StatusOtherError = -1
 )
 
@@ -54,6 +58,10 @@ func init() {
 	StatusMsgs[StatusVideoHasNoComment] = "该视频暂无评论"
 	StatusMsgs[StatusFailedChatList] = "拉取聊天记录失败"
 	StatusMsgs[StatusCanNotLikeSelf] = "自己不能自己关注自己"
+	StatusMsgs[StatusCanNotGetHashPwd] = "无法获取密码 hash"
+	StatusMsgs[StatusUserExist] = "用户名已存在"
+	StatusMsgs[StatusEmptyUser] = "用户名为空"
+	StatusMsgs[StatusUserNameSoLong] = "用户名太长"
 }
 
 // 所有 gin.HandlerFunc 都应该绑定到 Handler 上

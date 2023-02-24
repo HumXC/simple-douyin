@@ -1,6 +1,7 @@
 package douyin
 
 import (
+	"fmt"
 	"math/rand"
 	"net/http"
 	"unicode/utf8"
@@ -105,24 +106,24 @@ func (h *Handler) UserRegister(c *gin.Context) {
 	username := c.Query("username")
 	inputPwd, ok := c.Get("hash_password")
 	if !ok {
-		resp.Status(StatusOtherError)
+		resp.Status(StatusCanNotGetHashPwd)
 		return
 	}
 	password := inputPwd.(string)
 
 	//用户名存在
 	if ok := userMan.IsExistWithName(username); ok {
-		resp.Status(StatusOtherError)
+		resp.Status(StatusUserExist)
 		return
 	}
 	//用户名为空
 	if username == "" {
-		resp.Status(StatusOtherError)
+		resp.Status(StatusEmptyUser)
 		return
 	}
 	//用户名长度超出限制
 	if utf8.RuneCount([]byte(username)) > 32 {
-		resp.Status(StatusOtherError)
+		resp.Status(StatusUserNameSoLong)
 		return
 	}
 	//保存到数据库
@@ -134,14 +135,14 @@ func (h *Handler) UserRegister(c *gin.Context) {
 	}
 	if err := userMan.AddUser(&user); err != nil {
 		resp.Status(StatusOtherError)
-		return
+		panic(fmt.Errorf("添加用户异常: %w", err))
 	}
 	//生成user_id和token
 	userId := user.ID
 	token, err := ginx.GenerateToken(userId)
 	if err != nil {
 		resp.Status(StatusOtherError)
-		return
+		panic(fmt.Errorf("生成用户 token 异常: %w", err))
 	}
 	//注册成功，包装resp
 	resp.UserId = userId
